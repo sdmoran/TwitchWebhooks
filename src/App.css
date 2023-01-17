@@ -36,3 +36,29 @@
     transform: rotate(360deg);
   }
 }
+
+.notification-show {
+  opacity: 1;
+  transition: all 250ms linear;
+}
+
+.notification-hide {
+  opacity: 0;
+  transition: all 250ms linear;
+}
+
+.Setup {
+  text-align: center
+}
+
+.UserCardContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.UserProfileImage {
+  max-width: 7em;
+  height: auto;
+}
