@@ -7,8 +7,8 @@ const TWITCH_GET_USER_URL = "https://api.twitch.tv/helix/users";
 // Interface for method callback to return data from setup view.
 interface ISetupViewProps {
     setupCallback(userToken: string, user: User): void
-    TOKEN: string
-    CLIENT_ID: string
+    token: string
+    clientId: string
 }
 
 // View to do all necessary setup for the app to run.
@@ -19,8 +19,8 @@ function SetupView(props: ISetupViewProps) {
     let [twitchUserName, setTwitchUserName] = React.useState("")
     let [userInfo, setUserInfo] = React.useState({id: undefined})
     let [err, setErr] = React.useState("")
-    const TOKEN = props.TOKEN;
-    const CLIENT_ID = props.CLIENT_ID; 
+    const TOKEN = props.token;
+    const CLIENT_ID = props.clientId; 
     
     const handleChange = function(event: React.ChangeEvent<HTMLInputElement>) {
         setTwitchUserName(event.target.value);
@@ -49,7 +49,6 @@ function SetupView(props: ISetupViewProps) {
                 setErr("")
             }
             else {
-                console.log(respBody);
                 setErr("Failed to get User ID from Twitch: " + respBody.message)
             }
         } catch (e) {

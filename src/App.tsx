@@ -81,7 +81,7 @@ function App() {
     }
     return (
       <div>
-        <SetupView setupCallback={setupCallback} TOKEN={TOKEN} CLIENT_ID={CLIENT_ID}/>
+        <SetupView setupCallback={setupCallback} token={TOKEN} clientId={CLIENT_ID}/>
       </div>
     )
   }
