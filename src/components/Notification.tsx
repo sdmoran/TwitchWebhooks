@@ -8,7 +8,7 @@ interface Props {
 
 function Notification(props: Props) {
     const [show, setShow] = React.useState(props.show);
-    
+
     useEffect(() => {
         setShow(props.show)
     });
@@ -19,7 +19,7 @@ function Notification(props: Props) {
 
     return (
         <div className={show ? 'notification-show' : 'notification-hide'}>
-             <h1>{eventMsg}</h1>
+             <h1 className="NotificationText">{eventMsg}</h1>
          </div>
     )
 }

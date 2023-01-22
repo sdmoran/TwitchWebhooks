@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import User from "../models/User";
 import UserInfoCard from "./UserInfoCard";
 
@@ -6,7 +7,6 @@ const TWITCH_GET_USER_URL = "https://api.twitch.tv/helix/users";
 
 // Interface for method callback to return data from setup view.
 interface ISetupViewProps {
-    setupCallback(userToken: string, user: User): void
     token: string
     clientId: string
 }
@@ -56,13 +56,14 @@ function SetupView(props: ISetupViewProps) {
         }
     }
 
+    const navigate = useNavigate();
+
     let userInfoCard = undefined;
     let submitButton = undefined;
     if (userInfo.id != undefined) {
         userInfoCard = <UserInfoCard user={userInfo}/>
-        submitButton = <button onClick={() => props.setupCallback("example_token", userInfo)}>Subscribe to Follower Notifications</button>
+        submitButton = <button onClick={() => navigate(`/notifications/${userInfo.id}`)}>Subscribe to Follower Notifications</button>
     }
-
 
     return (
         <div className="Setup">
