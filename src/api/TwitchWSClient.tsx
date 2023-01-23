@@ -103,12 +103,11 @@ class TwitchWSClient {
         }
 
         this.client.onmessage = onMessageHandler;
-        console.log("WAITING FOR CONNECTED CALLBACK")
         await connectedCallback;
         console.log("TWITCH CLIENT SETUP DONE");
     }
 
-    public async subscribeToEvent(eventType: string, broadcasterId: string) {
+    public async subscribeToEvent(eventType: string, broadcasterId: string): Promise<Error | undefined> {
         const data = {
             type: eventType, //"channel.follow",
             version: "1",
@@ -116,7 +115,7 @@ class TwitchWSClient {
             transport: {"method": "websocket", "session_id": this.sessionId}
         }
 
-        console.log("Trying to subscribe to event!")
+        console.log(`Trying to subscribe to ${eventType} for ${broadcasterId}`)
         console.log("Session ID: ", this.sessionId)
 
         const resp = await fetch(
@@ -131,8 +130,15 @@ class TwitchWSClient {
                 body: JSON.stringify(data)
             }
         )
-        let msg = await resp.json();
-        console.log(msg);
+
+        // Need data even on fail for error reporting
+        let dataJson = await resp.json();
+        if (resp.status !== 202) { // success status is 202 ACCEPTED, not 200 OK
+            return Promise.resolve(new Error("SubscriptionSetupFailed", {cause: dataJson.message}));
+        }
+        else {
+            return Promise.resolve(undefined);
+        }
     }
 
     // Extract event information 

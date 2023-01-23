@@ -83,3 +83,7 @@ code {
 .NotificationText {
   color: pink;
 }
+
+.error {
+  color: red;
+}

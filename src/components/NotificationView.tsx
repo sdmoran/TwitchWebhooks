@@ -3,6 +3,7 @@ import Notification from "./Notification";
 import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
 import { ViewerEvent, ViewerEventSource, ViewerEventType } from "../models/ViewerEvent";
 import TwitchWSClient from "../api/TwitchWSClient";
+import ErrorMessage from "./ErrorMessage";
 
 const WEBSOCKET_URL = "wss://eventsub-beta.wss.twitch.tv/ws";
 const TOKEN = process.env.REACT_APP_TWITCH_TOKEN || "fake_token";
@@ -13,16 +14,17 @@ const TEST_EVENT: ViewerEvent = {
     source: ViewerEventSource.TWITCH,
     userName: "Sample User",
     timestamp: "now"
-  }
+}
 
 function twitchUserIdLoader(data: LoaderFunctionArgs) {
     return data.params;
 }
 
 function NotificationView() {
+    // Get loader data from router. TODO types for this
     const obj = useLoaderData() as any;
-    const [userId, setUserId] = React.useState(obj?.twitchUserId); // TODO get type for this
-
+    const [userId, setUserId] = React.useState(obj?.twitchUserId); 
+    const [error, setError] = React.useState<Error | undefined>(undefined);
     const [messageDisplaySeconds, setMessageDisplaySeconds] = React.useState(5);
     const [displayMessage, setDisplayMessage] = React.useState(false);
     const [events, setEvents] = React.useState<Array<ViewerEvent>>([]);
@@ -38,8 +40,13 @@ function NotificationView() {
     useEffect(() => {
         const init = async () => {
             await twitchClient.initialize();
-            setupSubscription("channel.follow", userId);
-            showNotification(TEST_EVENT); // Test event will now show once on initial page render.
+            const subscribeErr = await setupSubscription("channel.follow", userId);
+            if (subscribeErr != undefined) {
+                setError(subscribeErr);
+            }
+            else {
+                showNotification(TEST_EVENT); // Test event will now show once on initial page render.
+            }
             // TODO add URL parameter to enable/disable this?
         }
         init();
@@ -56,18 +63,18 @@ function NotificationView() {
     }
 
     // Call Twitch API and enable subscription for the provided userId.
-    function setupSubscription(eventType: string, userId: string) {
+    async function setupSubscription(eventType: string, userId: string): Promise<Error | undefined> {
         if (twitchClient == undefined) {
-            console.log("TwitchClient undefined, couldn't subscribe to event!")
+            Promise.resolve(new Error("SubscriptionSetupFailed", {cause: "TwitchClient is undefined"}));
         }
-        else {
-            twitchClient.subscribeToEvent(eventType, userId)
-        }
+        return twitchClient.subscribeToEvent(eventType, userId);
     }
+
+    const elt = error ? <ErrorMessage err={error}/> : <Notification viewerEvent={currentEvent} show={displayMessage}/>;
 
     return (
         <div className="container">
-            <Notification viewerEvent={currentEvent} show={displayMessage}/>
+            {elt}
         </div>
     )
 }
