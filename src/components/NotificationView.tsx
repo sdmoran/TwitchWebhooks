@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Notification from "./Notification";
-import { LoaderFunctionArgs, useLoaderData } from "react-router-dom";
+import { LoaderFunctionArgs, useLoaderData, useSearchParams } from "react-router-dom";
 import { ViewerEvent, ViewerEventSource, ViewerEventType } from "../models/ViewerEvent";
 import TwitchWSClient from "../api/TwitchWSClient";
 import ErrorMessage from "./ErrorMessage";
@@ -30,7 +30,8 @@ function NotificationView() {
     const [events, setEvents] = React.useState<Array<ViewerEvent>>([]);
     const [currentEvent, setCurrentEvent] = React.useState<ViewerEvent | undefined>(undefined);
     const [twitchClient, setTwitchClient] = React.useState<TwitchWSClient>(new TwitchWSClient(WEBSOCKET_URL, TOKEN, CLIENT_ID, receiveEvent));
- 
+    const [queryParams, setQueryParams] = useSearchParams();
+
     function receiveEvent(event: ViewerEvent) {
         setEvents([...events, event])
         showNotification(event) // TODO make so this won't overwrite if multiple follows in succession. Queue it up somehow.
@@ -43,11 +44,11 @@ function NotificationView() {
             const subscribeErr = await setupSubscription("channel.follow", userId);
             if (subscribeErr != undefined) {
                 setError(subscribeErr);
+                return
             }
-            else {
+            if (queryParams.get("showTest") === "1") {
                 showNotification(TEST_EVENT); // Test event will now show once on initial page render.
             }
-            // TODO add URL parameter to enable/disable this?
         }
         init();
     }, [])
