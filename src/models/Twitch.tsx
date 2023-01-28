@@ -47,4 +47,13 @@ interface TwitchNotificationEvent {
     payload: TwitchNotificationEventPayload
 }
 
-export default TwitchNotificationEvent;
+interface SubscriptionOption {
+    friendlyName: string
+    type: string
+    selected: boolean
+}
+
+export {
+    type TwitchNotificationEvent,
+    type SubscriptionOption
+};

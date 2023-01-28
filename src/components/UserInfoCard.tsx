@@ -7,7 +7,7 @@ interface IUserInfoProps {
 function UserInfoCard(props: IUserInfoProps) {
 
     return (
-        <div className="UserCardContainer">
+        <div className="HorizontalCardContainer UserInfoCard">
             <div className="UserThumbnail">
                 <img src={props.user.profile_image_url} className="UserProfileImage"/> 
             </div>

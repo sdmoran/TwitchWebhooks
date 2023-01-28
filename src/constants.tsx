@@ -1,0 +1,7 @@
+const EVENT_TYPES_URL_PARAMETER = "eventTypes";
+const PREVIEW_URL_PARAMETER = "showTest";
+
+export {
+    EVENT_TYPES_URL_PARAMETER,
+    PREVIEW_URL_PARAMETER
+}

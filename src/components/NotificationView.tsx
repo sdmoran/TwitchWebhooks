@@ -4,6 +4,7 @@ import { LoaderFunctionArgs, useLoaderData, useSearchParams } from "react-router
 import { ViewerEvent, ViewerEventSource, ViewerEventType } from "../models/ViewerEvent";
 import TwitchWSClient from "../api/TwitchWSClient";
 import ErrorMessage from "./ErrorMessage";
+import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from "../constants";
 
 const WEBSOCKET_URL = "wss://eventsub-beta.wss.twitch.tv/ws";
 const TOKEN = process.env.REACT_APP_TWITCH_TOKEN || "fake_token";
@@ -41,13 +42,30 @@ function NotificationView() {
     useEffect(() => {
         const init = async () => {
             await twitchClient.initialize();
-            const subscribeErr = await setupSubscription("channel.follow", userId);
-            if (subscribeErr != undefined) {
-                setError(subscribeErr);
+
+            const subscriptions = queryParams.get(EVENT_TYPES_URL_PARAMETER);
+            if(subscriptions == undefined || subscriptions?.length < 1) {
+                setError(new Error(
+                    "No subscriptions selected!",
+                    {
+                        cause: "Make sure you include the ENTIRE URL when copying."
+                    }
+                ));
                 return
             }
-            if (queryParams.get("showTest") === "1") {
-                showNotification(TEST_EVENT); // Test event will now show once on initial page render.
+
+            // Get subscriptions and subscribe one at a time, error and stop if something goes wrong.
+            for(let subscription of subscriptions.split(",")) {
+                const subscribeErr = await setupSubscription(subscription, userId);
+                if (subscribeErr != undefined) {
+                    setError(subscribeErr);
+                    break;
+                }
+            }
+            
+            // Test event will show once on initial page render if query parameter present.
+            if (queryParams.get(PREVIEW_URL_PARAMETER) === "1") {
+                showNotification(TEST_EVENT);
             }
         }
         init();

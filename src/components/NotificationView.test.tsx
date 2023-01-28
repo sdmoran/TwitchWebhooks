@@ -1,8 +1,6 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
-import { createBrowserRouter, createMemoryRouter, createSearchParams, MemoryRouter, Router, RouterProvider, useNavigate } from "react-router-dom";
-import { NotificationView, twitchUserIdLoader } from "./NotificationView";
+import { render, screen, waitFor } from "@testing-library/react";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import routeConfig from "../routeConfig";
-import userEvent from "@testing-library/user-event";
 
 test("Renders NotificationView with a valid Twitch User ID", async () => {
     const router = createMemoryRouter(routeConfig, {
@@ -16,7 +14,6 @@ test("Renders NotificationView with a valid Twitch User ID", async () => {
     expect(msg).toBeInTheDocument();
     const testMsg = await waitFor(() => document.querySelector(".notification-hide")) // notification hidden if showTest not in query params
     expect(testMsg).toBeInTheDocument();
-    // expect(testMsg).toBeInTheDocument();
 });
 
 test("Shows test notification when URL parameter is present", async () => {

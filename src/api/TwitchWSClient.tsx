@@ -1,4 +1,4 @@
-import TwitchNotificationEvent from "../models/Twitch";
+import { TwitchNotificationEvent } from "../models/Twitch";
 import { ViewerEvent, ViewerEventType, ViewerEventSource } from "../models/ViewerEvent";
 
 // Enum for type of WebSocket message.
