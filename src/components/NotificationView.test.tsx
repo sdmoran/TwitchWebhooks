@@ -2,9 +2,21 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import routeConfig from "../routeConfig";
 
-test("Renders NotificationView with a valid Twitch User ID", async () => {
+test("Shows error when no subscriptions are passed in URL parameters", async () => {
     const router = createMemoryRouter(routeConfig, {
         initialEntries: ["/notifications/61744666"]
+    })
+    render(
+        <RouterProvider router={router} />
+    );
+
+    const msg = await waitFor(() => screen.getByText("UNKNOWN EVENT TYPE"))
+    expect(msg).toBeInTheDocument();
+});
+
+test("Renders NotificationView with a valid Twitch User ID and subscription types", async () => {
+    const router = createMemoryRouter(routeConfig, {
+        initialEntries: ["/notifications/61744666?eventTypes=channel.follow&showTest=1"]
     })
     render(
         <RouterProvider router={router} />
@@ -18,7 +30,7 @@ test("Renders NotificationView with a valid Twitch User ID", async () => {
 
 test("Shows test notification when URL parameter is present", async () => {
     const router = createMemoryRouter(routeConfig, {
-        initialEntries: ["/notifications/61744666?showTest=1"]
+        initialEntries: ["/notifications/61744666?eventTypes=channel.follow&showTest=1"]
     })
 
     render(
@@ -31,7 +43,7 @@ test("Shows test notification when URL parameter is present", async () => {
 
 test("NotificationView shows error message with invalid Twitch User ID", async () => {
     const router = createMemoryRouter(routeConfig, {
-        initialEntries: ["/notifications/aaaaa"]
+        initialEntries: ["/notifications/aaaaa?eventTypes=channel.follow"]
     })
     render(
         <RouterProvider router={router} />
