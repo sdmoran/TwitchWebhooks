@@ -1,5 +1,5 @@
 interface User {
-    id: string | undefined
+  id: string | undefined
 }
 
 export default User
