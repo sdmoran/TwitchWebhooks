@@ -32,4 +32,19 @@ test('Submitting valid username displays Twitch user information for that user',
   expect(twitchUserId).toBeInTheDocument()
 })
 
+test('Submitting invalid username AFTER submitting valid username displays ONLY error message (clears user information)', async () => {
+  render(<RouterProvider router={router} />)
+  userEvent.paste(screen.getByPlaceholderText('Twitch Username'), 'mrmannertink')
+  userEvent.click(screen.getByText('Get User ID'))
+  const twitchUserName = await screen.findByText('MrMannertink')
+  expect(twitchUserName).toBeInTheDocument()
+  const twitchUserId = screen.getByText('User ID: 61744666')
+  expect(twitchUserId).toBeInTheDocument()
+  userEvent.paste(screen.getByPlaceholderText('Twitch Username'), 'e')
+  userEvent.click(screen.getByText('Get User ID'))
+  const failMessage = await screen.findByText('Failed to get User ID from Twitch!')
+  expect(failMessage).toBeInTheDocument()
+  expect(screen.queryByText('MrMannertink')).toBeNull() // user info should have been cleared
+})
+
 // TODO Add tests for image? May require some custom querySelector shenanigans

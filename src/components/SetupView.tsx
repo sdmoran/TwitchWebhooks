@@ -73,7 +73,9 @@ function SetupView (props: ISetupViewProps): ReactElement {
         setUserInfo(userInfo)
         setErr('')
       } else {
+        // On resubmit, reset user so we don't have user card AND error message displayed
         setErr('Failed to get User ID from Twitch!')
+        setUserInfo({ id: undefined })
       }
     } catch (e) {
       setErr(`Failed to request a UserId from Twitch: ${(e as Error).message}`)
