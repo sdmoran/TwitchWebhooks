@@ -110,8 +110,8 @@ class TwitchWSClient {
   public async subscribeToEvent (eventType: string, broadcasterId: string): Promise<Error | undefined> {
     const data = {
       type: eventType, // "channel.follow",
-      version: '1',
-      condition: { broadcaster_user_id: broadcasterId },
+      version: eventType === NOTIFICATION_TYPE.FOLLOW ? '2' : '1',
+      condition: { broadcaster_user_id: broadcasterId, moderator_user_id: broadcasterId },
       transport: { method: 'websocket', session_id: this.sessionId }
     }
 
@@ -124,7 +124,7 @@ class TwitchWSClient {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${this.token}`,
-          'Client-Id': this.clientId, // TODO ENVIRONMENT VARIABLE,
+          'Client-Id': this.clientId,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
@@ -139,15 +139,6 @@ class TwitchWSClient {
       await Promise.resolve(undefined)
     }
   }
-
-  // Extract event information
-  // public getFollowEvent () {
-
-  // }
-
-  // public getEventType () {
-
-  // }
 }
 
 export default TwitchWSClient
