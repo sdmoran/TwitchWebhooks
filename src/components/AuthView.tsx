@@ -20,9 +20,10 @@ function AuthView (): ReactElement {
   const AUTH_URL = TWITCH_AUTH_URL_BASE + params.toString() + `&redirect_uri=${REDIRECT_URI}` // Redirect URI should contain LITERAL "/" and ":", NOT URI-ENCODED.
 
   return (
-        <div>
+        <div className="container">
             <h1>Authorize Application</h1>
-            <a href={AUTH_URL}>Authorize with Twitch</a>
+            <a href={AUTH_URL}><p>Click here to authorize this application with Twitch.</p></a>
+            <p>This is required in order to view channel followers.</p>
         </div>
   )
 }
