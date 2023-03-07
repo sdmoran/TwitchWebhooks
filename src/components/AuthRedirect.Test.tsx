@@ -4,9 +4,11 @@ import routeConfig from '../routeConfig'
 import { genericErrCause, genericErrMsg } from './AuthRedirect'
 import React from 'react'
 
+const routes = routeConfig(true)
+
 test('Parses token from URL', async () => {
   const token = 'the_token'
-  const router = createMemoryRouter(routeConfig, {
+  const router = createMemoryRouter(routes, {
     initialEntries: [`/auth/redirect#access_token=${token}&scope=chat%3Aread&token_type=bearer`]
   })
   render(
@@ -21,7 +23,7 @@ test('Shows error message provided by Twitch when token request is denied', asyn
   const errType = 'access_denied'
   const errDescription = 'The+user+denied+you+access'
 
-  const router = createMemoryRouter(routeConfig, {
+  const router = createMemoryRouter(routes, {
     initialEntries: [`/auth/redirect?error=${errType}&error_description=${errDescription}`]
   })
 
@@ -36,7 +38,7 @@ test('Shows error message provided by Twitch when token request is denied', asyn
 })
 
 test('Shows error message when no token or error information is provided', async () => {
-  const router = createMemoryRouter(routeConfig, {
+  const router = createMemoryRouter(routes, {
     initialEntries: ['/auth/redirect']
   })
   render(

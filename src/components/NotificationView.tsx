@@ -5,9 +5,9 @@ import { type ViewerEvent, ViewerEventSource, ViewerEventType } from '../models/
 import TwitchWSClient from '../api/TwitchWSClient'
 import ErrorMessage from './ErrorMessage'
 import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from '../constants'
+import { useUserContext } from '../state/UserContext'
 
 const WEBSOCKET_URL = 'wss://eventsub-beta.wss.twitch.tv/ws'
-const TOKEN = process.env.REACT_APP_TWITCH_TOKEN ?? 'fake_token'
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID ?? 'fake_client_id'
 
 const TEST_EVENT: ViewerEvent = {
@@ -22,6 +22,9 @@ function twitchUserIdLoader (data: LoaderFunctionArgs): Params<string> {
 }
 
 function NotificationView (): ReactElement {
+  const { userData } = useUserContext()
+  const TOKEN = userData.token
+
   // Get loader data from router. TODO types for this
   const obj = useLoaderData() as any
   const [userId] = React.useState(obj?.twitchUserId)

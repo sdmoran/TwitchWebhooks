@@ -1,6 +1,8 @@
-import { type LoaderFunctionArgs, useLoaderData } from 'react-router-dom'
+import { type LoaderFunctionArgs, useLoaderData, useNavigate } from 'react-router-dom'
 import ErrorMessage from './ErrorMessage'
-import React, { type ReactElement } from 'react'
+import React, { useEffect, type ReactElement } from 'react'
+import { type UserData, useUserContext } from '../state/UserContext'
+import { storeToken } from '../state/LocalStorage'
 
 const genericErrMsg = 'Failed to get token'
 const genericErrCause = 'Something went wrong getting token. Please try again.'
@@ -25,25 +27,43 @@ function authResultLoader (data: LoaderFunctionArgs): Error | string {
   return ret
 }
 
-function parseQueryParams (data: Error | string): ReactElement {
-  if (data instanceof Error) {
-    return <ErrorMessage err={data}/>
-  }
-
-  return (
-        <h1>
-            Access token acquired! Token: {data}
-        </h1>
-  )
-}
-
 function AuthRedirect (): ReactElement {
+  const navigate = useNavigate()
   const loaderData = useLoaderData() as Error | string
 
+  if (loaderData instanceof Error) {
+    return <ErrorMessage err={loaderData}/>
+  }
+
+  const userContextCB = React.useCallback(() => useUserContext(), [useUserContext])
+
+  const { userData, setUserData } = userContextCB()
+
+  const setUserCB = React.useCallback((user: UserData) => {
+    setUserData(user)
+  }, [setUserData])
+
+  const userInfo = {
+    username: '',
+    token: loaderData
+  }
+
+  // Get and try storing token. If that succeeds, redirect to home page
+  useEffect(() => {
+    setUserCB(userInfo)
+    if (userData.token.length > 0) {
+      storeToken(userData.token)
+      navigate('/')
+    }
+  }, [userData.token])
+
   return (
-        <div>
-            {parseQueryParams(loaderData)}
-        </div>
+      <div className='container'>
+          <h1>Token data: {loaderData}</h1>
+          <h1>User context token: {userData.token}</h1>
+          <h1>User context username: {userData.username}</h1>
+          <button onClick={() => { setUserCB(userInfo) }}></button>
+      </div>
   )
 }
 

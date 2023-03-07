@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import SubscriptionSelector from './SubscriptionSelector'
 import UserInfoCard from './UserInfoCard'
 import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from '../constants'
+import { useUserContext } from '../state/UserContext'
 
 const TWITCH_GET_USER_URL = 'https://api.twitch.tv/helix/users'
 const SUBSCRIPTION_OPTIONS = [
@@ -28,7 +29,8 @@ function SetupView (props: ISetupViewProps): ReactElement {
   const [userInfo, setUserInfo] = React.useState({ id: undefined })
   const [err, setErr] = React.useState('')
   const [preview, setPreview] = React.useState(true)
-  const TOKEN = props.token
+  const { userData } = useUserContext()
+  const TOKEN = userData.token // get user token from context
   const CLIENT_ID = props.clientId
 
   const handleChange = function (event: React.ChangeEvent<HTMLInputElement>): void {

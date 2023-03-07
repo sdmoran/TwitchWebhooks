@@ -2,9 +2,12 @@ import { render, screen } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import routeConfig from '../routeConfig'
 import React from 'react'
+import { UserContext } from '../state/UserContext'
+
+const routes = routeConfig(true)
 
 test('Shows error when no subscriptions are passed in URL parameters', async () => {
-  const router = createMemoryRouter(routeConfig, {
+  const router = createMemoryRouter(routes, {
     initialEntries: ['/notifications/61744666']
   })
   render(
@@ -16,7 +19,7 @@ test('Shows error when no subscriptions are passed in URL parameters', async () 
 })
 
 test('Renders NotificationView with a valid Twitch User ID and subscription types', async () => {
-  const router = createMemoryRouter(routeConfig, {
+  const router = createMemoryRouter(routes, {
     initialEntries: ['/notifications/61744666?eventTypes=channel.follow&showTest=1']
   })
   render(
@@ -30,12 +33,24 @@ test('Renders NotificationView with a valid Twitch User ID and subscription type
 })
 
 test('Shows test notification when URL parameter is present', async () => {
-  const router = createMemoryRouter(routeConfig, {
+  const router = createMemoryRouter(routes, {
     initialEntries: ['/notifications/61744666?eventTypes=channel.follow&showTest=1']
   })
 
+  const token = process.env.REACT_APP_TWITCH_TOKEN ?? ''
+
+  const value = {
+    userData: {
+      username: '',
+      token
+    },
+    setUserData: () => { }
+  }
+
   render(
-        <RouterProvider router={router} />
+    <UserContext.Provider value={value}>
+      <RouterProvider router={router} />
+    </UserContext.Provider>
   )
 
   const testMsg = await screen.findByText('Thanks for following, Sample User!')
@@ -43,7 +58,7 @@ test('Shows test notification when URL parameter is present', async () => {
 })
 
 test('NotificationView shows error message with invalid Twitch User ID', async () => {
-  const router = createMemoryRouter(routeConfig, {
+  const router = createMemoryRouter(routes, {
     initialEntries: ['/notifications/aaaaa?eventTypes=channel.follow']
   })
   render(
