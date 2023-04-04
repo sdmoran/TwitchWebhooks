@@ -7,7 +7,7 @@
         "plugin:react/recommended",
         "standard-with-typescript"
     ],
-    "ignorePatterns": ["reportWebVitals.ts"],
+    "ignorePatterns": ["reportWebVitals.ts", "react-app-env.d.ts"],
     "overrides": [
     ],
     "parser": "@typescript-eslint/parser",

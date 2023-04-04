@@ -2,7 +2,8 @@ import { type LoaderFunctionArgs, useLoaderData, useNavigate } from 'react-route
 import ErrorMessage from './ErrorMessage'
 import React, { useEffect, type ReactElement } from 'react'
 import { type UserData, useUserContext } from '../state/UserContext'
-import { storeToken } from '../state/LocalStorage'
+import { storeUserData } from '../state/LocalStorage'
+import { type TokenResponse, validateToken } from '../api/TwitchClient'
 
 const genericErrMsg = 'Failed to get token'
 const genericErrCause = 'Something went wrong getting token. Please try again.'
@@ -50,12 +51,30 @@ function AuthRedirect (): ReactElement {
 
   // Get and try storing token. If that succeeds, redirect to home page
   useEffect(() => {
-    setUserCB(userInfo)
-    if (userData.token.length > 0) {
-      storeToken(userData.token)
-      navigate('/')
+    const ensureTokenValid = async (): Promise<TokenResponse> => {
+      return await validateToken(loaderData)
     }
-  }, [userData.token])
+
+    ensureTokenValid()
+      .then((valid) => {
+        if (valid.login.length > 0) {
+          const userInfo = {
+            username: valid.login,
+            token: loaderData
+          }
+
+          console.log('Setting userinfo:')
+          console.log(userInfo)
+
+          storeUserData(userInfo)
+          setUserData(userInfo)
+          navigate('/')
+        }
+      })
+      .catch(() => {
+        console.log('Couldn\'t get token')
+      })
+  }, [])
 
   return (
       <div className='container'>

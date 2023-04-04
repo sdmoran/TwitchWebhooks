@@ -24,6 +24,7 @@ function twitchUserIdLoader (data: LoaderFunctionArgs): Params<string> {
 function NotificationView (): ReactElement {
   const { userData } = useUserContext()
   const TOKEN = userData.token
+  const AUDIO_PATH = '/twinkle.mp3'
 
   // Get loader data from router. TODO types for this
   const obj = useLoaderData() as any
@@ -39,6 +40,11 @@ function NotificationView (): ReactElement {
   function receiveEvent (event: ViewerEvent): void {
     setEvents([...events, event])
     showNotification(event) // TODO make so this won't overwrite if multiple follows in succession. Queue it up somehow.
+  }
+
+  async function playAudioCue (audioPath: string): Promise<void> {
+    const audio = new Audio(audioPath)
+    await audio.play()
   }
 
   // On view creation, setup client
@@ -76,8 +82,9 @@ function NotificationView (): ReactElement {
 
   // Show notification message at top of screen for a duration.
   function showNotification (event: ViewerEvent): void {
-    setDisplayMessage(true)
     setCurrentEvent(event)
+    setDisplayMessage(true)
+    void playAudioCue(AUDIO_PATH)
 
     setTimeout(() => {
       setDisplayMessage(false)

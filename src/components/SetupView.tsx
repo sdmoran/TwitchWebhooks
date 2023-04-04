@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import SubscriptionSelector from './SubscriptionSelector'
 import UserInfoCard from './UserInfoCard'
 import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from '../constants'
-import { useUserContext } from '../state/UserContext'
 
-const TWITCH_GET_USER_URL = 'https://api.twitch.tv/helix/users'
 const SUBSCRIPTION_OPTIONS = [
   {
     type: 'channel.follow',
     friendlyName: 'Channel Follow',
+    requiredPermission: 'moderator:read:followers',
     selected: false
   }
 ]
@@ -29,9 +28,6 @@ function SetupView (props: ISetupViewProps): ReactElement {
   const [userInfo, setUserInfo] = React.useState({ id: undefined })
   const [err, setErr] = React.useState('')
   const [preview, setPreview] = React.useState(true)
-  const { userData } = useUserContext()
-  const TOKEN = userData.token // get user token from context
-  const CLIENT_ID = props.clientId
 
   const handleChange = function (event: React.ChangeEvent<HTMLInputElement>): void {
     setTwitchUserName(event.target.value)
@@ -55,14 +51,9 @@ function SetupView (props: ISetupViewProps): ReactElement {
 
     try {
       const resp = await fetch(
-        TWITCH_GET_USER_URL + `?login=${userName}`,
+        `${window.location.origin}/api/user/${userName}`, // get user name and image from backend
         {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${TOKEN}`,
-            'Client-Id': CLIENT_ID,
-            'Content-Type': 'application/json'
-          }
+          method: 'GET'
         }
       )
 

@@ -12,7 +12,7 @@ const noTokenView = <Navigate to="/auth" /> // view to use if no token exists
 const routeConfig = (hasToken: boolean = false): RouteObject[] => [
   {
     path: '/',
-    element: hasToken ? <SetupView token="" clientId={CLIENT_ID}/> : noTokenView
+    element: <SetupView token="" clientId={CLIENT_ID}/>
   },
   {
     path: '/notifications/:twitchUserId',

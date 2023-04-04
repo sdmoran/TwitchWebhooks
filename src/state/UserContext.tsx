@@ -1,45 +1,33 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react'
-import { getToken } from './LocalStorage'
+import React, { createContext, type ReactNode, useContext, useState } from 'react'
+import { type UserData } from './Types'
 
 interface Props {
-    children?: ReactNode 
-}
-
-interface UserData {
-  username: string,
-  token: string,
+  children?: ReactNode
 }
 
 interface UserContextType {
-  userData: UserData,
+  userData: UserData
   setUserData: any
 }
 
-const userdata =  {
-  username: '',
-  token: ''
-}
-
-const setUserData = () => { }
+const setUserData = (): void => { }
 
 const placeholder = {
-  userData: userdata,
-  setUserData: setUserData
+  userData: {
+    username: '',
+    token: ''
+  },
+  setUserData
 }
 
-let UserContext = createContext<UserContextType>(placeholder);
+const UserContext = createContext<UserContextType>(placeholder)
 
-const useUserContext = () => useContext(UserContext);
+const useUserContext = (): UserContextType => useContext(UserContext)
 
-const UserContextProvider = function ( { children }: Props): any {
-  const userInfo = {
-    username: '',
-    token: getToken()
-  }
+const UserContextProvider = function ({ children }: Props): any {
+  const [user, setUser] = useState<UserData>({ username: '', token: '' })
 
-  const [user, setUser] = useState<UserData>(userInfo)
-
-  const value = React.useMemo(() =>({
+  const value = React.useMemo(() => ({
     userData: user,
     setUserData: setUser
   }), [user, setUser])
