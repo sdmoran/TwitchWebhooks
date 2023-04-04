@@ -7,6 +7,7 @@ function App (): ReactElement {
   // Get context to tell if we have a token
   const { userData } = useUserContext()
   const hasToken = userData.token.length > 0
+  console.log('Context got user token: ', userData.token)
 
   const routes = routeConfig(hasToken)
   const router = createBrowserRouter(routes)
