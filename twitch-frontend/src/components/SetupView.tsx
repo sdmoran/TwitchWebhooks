@@ -48,7 +48,6 @@ function SetupView (props: ISetupViewProps): ReactElement {
     if (userName.length < 1) {
       return
     }
-
     try {
       const resp = await fetch(
         `${window.location.origin}/api/user/${userName}`, // get user name and image from backend
