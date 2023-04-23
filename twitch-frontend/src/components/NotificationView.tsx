@@ -23,7 +23,6 @@ function twitchUserIdLoader (data: LoaderFunctionArgs): Params<string> {
 
 function NotificationView (): ReactElement {
   const { userData } = useUserContext()
-  const TOKEN = userData.token
   const AUDIO_PATH = '/twinkle.mp3'
 
   // Get loader data from router. TODO types for this
@@ -34,7 +33,7 @@ function NotificationView (): ReactElement {
   const [displayMessage, setDisplayMessage] = React.useState(false)
   const [events, setEvents] = React.useState<ViewerEvent[]>([])
   const [currentEvent, setCurrentEvent] = React.useState<ViewerEvent | undefined>(undefined)
-  const [twitchClient] = React.useState<TwitchWSClient>(new TwitchWSClient(WEBSOCKET_URL, TOKEN, CLIENT_ID, receiveEvent))
+  const [twitchClient] = React.useState<TwitchWSClient>(new TwitchWSClient(WEBSOCKET_URL, userData.token.value, CLIENT_ID, receiveEvent))
   const [queryParams] = useSearchParams()
 
   function receiveEvent (event: ViewerEvent): void {
@@ -77,7 +76,7 @@ function NotificationView (): ReactElement {
         showNotification(TEST_EVENT)
       }
     }
-    init().catch(() => { console.log('FAILED TO RENDER') })
+    init().catch((e) => { console.log('FAILED TO RENDER'); console.log(e) })
   }, [])
 
   // Show notification message at top of screen for a duration.

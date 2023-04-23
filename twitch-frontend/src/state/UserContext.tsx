@@ -15,7 +15,8 @@ const setUserData = (): void => { }
 const placeholder = {
   userData: {
     username: '',
-    token: ''
+    token: {value: '', scopes: []},
+    twitchId: '',
   },
   setUserData
 }
@@ -25,7 +26,7 @@ const UserContext = createContext<UserContextType>(placeholder)
 const useUserContext = (): UserContextType => useContext(UserContext)
 
 const UserContextProvider = function ({ children }: Props): any {
-  const [user, setUser] = useState<UserData>({ username: '', token: '' })
+  const [user, setUser] = useState<UserData>({ username: '', token: {value: '', scopes: []}, twitchId: '' })
 
   const value = React.useMemo(() => ({
     userData: user,

@@ -54,12 +54,13 @@ const router = createBrowserRouter([
 ])
 
 const renderRouterWithContext = (): void => {
-  const token = process.env.REACT_APP_TWITCH_TOKEN ?? ''
+  const token = { value: '', scopes: [] }
 
   const value = {
     userData: {
       username: '',
-      token
+      token,
+      twitchId: ''
     },
     setUserData: () => { }
   }

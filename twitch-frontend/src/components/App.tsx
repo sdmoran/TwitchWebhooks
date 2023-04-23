@@ -6,7 +6,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 function App (): ReactElement {
   // Get context to tell if we have a token
   const { userData } = useUserContext()
-  const hasToken = userData.token.length > 0
+  const hasToken = userData.token.value.length > 0
   console.log('Context got user token: ', userData.token)
 
   const routes = routeConfig(hasToken)
