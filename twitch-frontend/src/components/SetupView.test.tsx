@@ -4,8 +4,8 @@ import SetupView from './SetupView'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import React from 'react'
 import { UserContext } from '../state/UserContext'
-import {rest} from 'msw'
-import {setupServer} from 'msw/node'
+import { rest } from 'msw'
+import { setupServer } from 'msw/node'
 
 const TOKEN = process.env.REACT_APP_TWITCH_TOKEN ?? 'fake_token'
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID ?? 'fake_client_id'
@@ -33,18 +33,18 @@ const server = setupServer(
 
   rest.get('/api/user/e', (req, res, ctx) => {
     return res(ctx.json({
-      "data": []
+      data: []
     }))
   })
 )
 
 // establish API mocking before all tests
-beforeAll(() => server.listen())
+beforeAll(() => { server.listen() })
 // reset any request handlers that are declared as a part of our tests
 // (i.e. for testing one-time error scenarios)
-afterEach(() => server.resetHandlers())
+afterEach(() => { server.resetHandlers() })
 // clean up once the tests are done
-afterAll(() => server.close())
+afterAll(() => { server.close() })
 
 const router = createBrowserRouter([
   {

@@ -1,9 +1,8 @@
-import { findByDisplayValue, findByText, render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import routeConfig from '../routeConfig'
 import { genericErrCause, genericErrMsg } from './AuthRedirect'
 import React from 'react'
-import { useUserContext } from '../state/UserContext'
 import { act } from 'react-dom/test-utils'
 
 const routes = routeConfig(true)
@@ -19,7 +18,6 @@ test('Parses token from URL', async () => {
     )
   })
 })
-
 
 // This test should be working, but there is something weird going on with setting state with loaderdata. TODO revisit
 // test('Shows error message provided by Twitch when token request is denied', async () => {
@@ -55,5 +53,4 @@ test('Shows error message when no token or error information is provided', async
   expect(errText).toBeInTheDocument()
   const detailText = await waitFor(() => screen.getByText(`Details: ${genericErrCause}`))
   expect(detailText).toBeInTheDocument()
-
 })

@@ -1,14 +1,20 @@
 const express = require('express')
+const fs = require('fs')
 require('dotenv').config();
-const path = require('path')
 
 const app = express()
 app.use("/",express.static("public"))
 
-const port = 3000
+const port = 5000
 
+// Initialize on startup
 let CLIENT_TOKEN = ""
 getClientToken()
+
+// Events supported for notifications.
+let eventsWithScopes = JSON.parse(fs.readFileSync('eventsWithScopes.json'))
+console.log("Read events:")
+console.log(eventsWithScopes)
 
 async function getClientToken() {
     const baseUrl = "https://id.twitch.tv/oauth2/token"
@@ -57,6 +63,10 @@ app.get('/api/user/:username', async (req, res) => {
     let userInfo = await getUserId(req.params.username)
     console.log(userInfo)
     res.send(userInfo)
+})
+
+app.get('/api/scopes', async (req, res) => {
+    res.send(eventsWithScopes);
 })
 
 app.listen(port, () => {

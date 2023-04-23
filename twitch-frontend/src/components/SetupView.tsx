@@ -1,17 +1,7 @@
-import React, { type ReactElement } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, type ReactElement } from 'react'
+import { type SubscriptionOption } from '../models/Twitch'
 import SubscriptionSelector from './SubscriptionSelector'
 import UserInfoCard from './UserInfoCard'
-import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from '../constants'
-
-const SUBSCRIPTION_OPTIONS = [
-  {
-    type: 'channel.follow',
-    friendlyName: 'Channel Follow',
-    requiredPermission: 'moderator:read:followers',
-    selected: false
-  }
-]
 
 // Interface for method callback to return data from setup view.
 interface ISetupViewProps {
@@ -27,22 +17,28 @@ function SetupView (props: ISetupViewProps): ReactElement {
   const [twitchUserName, setTwitchUserName] = React.useState('')
   const [userInfo, setUserInfo] = React.useState({ id: undefined })
   const [err, setErr] = React.useState('')
-  const [preview, setPreview] = React.useState(true)
+  const [eventsWithScopes, setEventsWithScopes] = React.useState([] as SubscriptionOption[])
+
+  const getScopes = async function (): Promise<void> {
+    const scopes = await fetch('/api/scopes',
+      {
+        method: 'GET'
+      })
+    const scopeJson = await scopes.json()
+    console.log(scopeJson)
+    setEventsWithScopes(scopeJson)
+  }
 
   const handleChange = function (event: React.ChangeEvent<HTMLInputElement>): void {
     setTwitchUserName(event.target.value)
   }
 
-  const handleNavigate = (): void => {
-    const route = `/notifications/${userInfo.id ?? '404'}`
-    const selectedEventNames = SUBSCRIPTION_OPTIONS.filter((elt) => { return elt.selected }).map((elt) => { return elt.type })
-    const params = new URLSearchParams()
-    params.append(EVENT_TYPES_URL_PARAMETER, selectedEventNames.join(','))
-    if (preview) {
-      params.append(PREVIEW_URL_PARAMETER, '1')
-    }
-    navigate(`${route}?${params.toString()}`)
-  }
+  useEffect(() => {
+    getScopes()
+      .catch((e) => {
+        setErr(`Failed to get scopes from backend: ${(e as Error).message}`)
+      })
+  }, [])
 
   const getUserId = async function (userName: string): Promise<void> {
     if (userName.length < 1) {
@@ -74,47 +70,34 @@ function SetupView (props: ISetupViewProps): ReactElement {
     }
   }
 
-  const navigate = useNavigate()
-
   let userInfoCard
   let submitButton
   if (userInfo.id !== undefined) {
     userInfoCard = <UserInfoCard user={userInfo}/>
-    submitButton = <button onClick={() => { handleNavigate() }}>Subscribe to Follower Notifications {'>>'}</button>
+    submitButton = <button onClick={() => { window.location.href = 'https://id.twitch.tv/oauth2/authorize?response_type=token&amp;client_id=153e68kq58wn04srqjrf6cuc9vw329&amp;scope=chat%3Aread+moderator%3Aread%3Afollowers&amp;redirect_uri=http://localhost:3000/auth/redirect' }}>Authenticate with Twitch to Subscribe to Notifications {'>>'}</button>
   }
 
   return (
-        <div className="Setup">
-            <h1>Setup</h1>
-            <p>Enter the name of a Twitch user below to subscribe to events.</p>
+    <div className="Setup">
+      <h1>Setup</h1>
+      <p>Enter the name of a Twitch user below to subscribe to notifications when events occur (like a user following the channel).</p>
+      <p>After selecting event subscriptions, you will be prompted to login. Your account may need to be granted access to be notified when some events occur.</p>
 
-            <div className="container">
-                <input type="text" value={twitchUserName} onChange={handleChange} placeholder="Twitch Username"></input>
-                {/* eslint-disable-next-line */}
-                <button onClick={async (): Promise<void> => { await getUserId(twitchUserName) }}>Get User ID</button>
-                <div>
-                    {userInfoCard}
-                    <h2>{err}</h2>
-                </div>
-                <br/>
-                <SubscriptionSelector subscriptionTypes={SUBSCRIPTION_OPTIONS}/>
-                <br/>
-                <h2>Show preview?
-                    {/* Feels a little weird to have a button inside a header, but W3C says it's ok so I'm going with it :) */}
-                    <button
-                        onClick={() => { setPreview(!preview) }}
-                        className={preview ? 'ToggleButton active' : 'ToggleButton'}
-                    >
-                        {preview ? 'Yes' : 'No'}
-                    </button>
-                </h2>
-                <p>If &quot;Show Preview&quot; is selected, the notification page will display an example notification when it is first loaded. This may be useful for positioning the element in OBS.</p>
-                <br/>
-                <p>After you&apos;ve selected the events you want to display on your stream, click the button below to be redirected to a page where notifications will appear whenever the events you&apos;ve selected occur.</p>
-                <p>Then, <b>copy the URL and paste it into your OBS as a Browser Source</b>, and position or resize however you want.</p>
-                {submitButton}
-            </div>
+      <div className="container">
+        <input type="text" value={twitchUserName} onChange={handleChange} placeholder="Twitch Username"></input>
+        {/* eslint-disable-next-line */}
+        <button onClick={async (): Promise<void> => { await getUserId(twitchUserName) }}>Get User ID</button>
+        <div>
+            {userInfoCard}
+            <h2>{err}</h2>
         </div>
+        <br/>
+        <SubscriptionSelector subscriptionTypes={eventsWithScopes}/>
+        <br/>
+        <br/>
+        {submitButton}
+      </div>
+    </div>
   )
 }
 

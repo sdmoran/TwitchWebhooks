@@ -1,6 +1,6 @@
 import { type LoaderFunctionArgs, useLoaderData, useNavigate } from 'react-router-dom'
 import ErrorMessage from './ErrorMessage'
-import React, { useEffect, useMemo, useRef, useState, type ReactElement } from 'react'
+import React, { useEffect, useState, type ReactElement } from 'react'
 import { type UserData, useUserContext } from '../state/UserContext'
 import { type TokenResponse, validateToken } from '../api/TwitchClient'
 
@@ -38,7 +38,7 @@ function authResultLoader (data: LoaderFunctionArgs): Error | string {
 function AuthRedirect (): ReactElement {
   const navigate = useNavigate()
   const [err, setErr] = useState(undefined as Error | undefined)
-  const {userData, setUserData} = useUserContext()
+  const { userData, setUserData } = useUserContext()
 
   const setUserCB = React.useCallback((user: UserData) => {
     setUserData(user)
@@ -46,65 +46,59 @@ function AuthRedirect (): ReactElement {
 
   const loaderData = useLoaderData() as Error | string
 
-
-
-  function parseTokenResponse(resp: TokenResponse | undefined): UserData | undefined{
-    if (resp == undefined) {
+  function parseTokenResponse (resp: TokenResponse | undefined): UserData | undefined {
+    if (resp === undefined) {
       return resp
     }
-    
-    let userData = {
+
+    const userData = {
       username: resp.login,
       token: {
-        value: loaderData instanceof Error ? "" : loaderData,
+        value: loaderData instanceof Error ? '' : loaderData,
         scopes: resp.scopes
       },
       twitchId: resp.user_id
     }
 
-    return userData;
+    return userData
   }
 
   // TODO revisit this. Need to deeply compare saved state with new token? Or just use twitchId?
-  function userDataIsDifferent(a: UserData, b: UserData): boolean {
-    return a.token.value != b.token.value || a.twitchId != b.twitchId
+  function userDataIsDifferent (a: UserData, b: UserData): boolean {
+    return a.token.value !== b.token.value || a.twitchId !== b.twitchId
   }
 
   // Check with Twitch if token is valid. Call API only once.
   useEffect(() => {
-    if(loaderData instanceof Error) {
+    if (loaderData instanceof Error) {
       setErr(loaderData)
       return
     }
 
     validateToken(loaderData)
-    .then((tokenResponse) => {
-      if (tokenResponse == undefined) {
-        console.log("Short circuiting")
-        return
-      }
-  
-      else {
-        let result = parseTokenResponse(tokenResponse)
-        if (result != undefined && result.twitchId.length > 1) {
+      .then((tokenResponse) => {
+        if (tokenResponse === undefined) {
+          console.log('Short circuiting')
+        } else {
+          const result = parseTokenResponse(tokenResponse)
+          if (result !== undefined && result.twitchId.length > 1) {
           // store token and update local userdata if twitchId is different
-          if (userDataIsDifferent(result, userData)) {
-            setUserCB(result)
-          }
+            if (userDataIsDifferent(result, userData)) {
+              setUserCB(result)
+            }
 
-          setTimeout(() => {
-            navigate("/dashboard")
-          }, 3000);
+            setTimeout(() => {
+              navigate('/dashboard')
+            }, 3000)
+          }
         }
-      }
-    })
-    .catch(() => {
-      setErr(new Error("Failed to get response from Twitch!", { cause: "Validating the token failed." }))
-    })
+      })
+      .catch(() => {
+        setErr(new Error('Failed to get response from Twitch!', { cause: 'Validating the token failed.' }))
+      })
   }, [loaderData])
 
-
-  if (err) {
+  if (err != null) {
     return (
       <div className='container'>
         <ErrorMessage err={err}/>

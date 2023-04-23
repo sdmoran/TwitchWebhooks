@@ -1,0 +1,27 @@
+[
+    {
+        "name": "channel.follow",
+        "friendlyName": "Channel Follower",
+        "scopes": ["moderator:read:followers"]
+    },
+    {
+        "name": "channel.subscribe",
+        "friendlyName": "Channel Subscription",
+        "scopes": ["channel:read:subscriptions"]
+    },
+    {
+        "name": "channel.subscription.gift",
+        "friendlyName": "Channel Gifted Subscription",
+        "scopes": ["channel:read:subscriptions"]
+    },
+    {
+        "name": "channel.subscription.message",
+        "friendlyName": "Channel Resubscription",
+        "scopes": ["channel:read:subscriptions"]
+    },
+    {
+        "name": "channel.cheer",
+        "friendlyName": "Channel Cheer",
+        "scopes": ["bits:read"]
+    }
+]

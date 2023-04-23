@@ -5,6 +5,7 @@ import { NotificationView, twitchUserIdLoader } from './components/NotificationV
 import { AuthRedirect, authResultLoader } from './components/AuthRedirect'
 import { Navigate, type RouteObject } from 'react-router-dom'
 import AuthView from './components/AuthView'
+import DashboardView from './components/DashboardView'
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID ?? 'fake_client_id'
 
 const noTokenView = <Navigate to="/auth" /> // view to use if no token exists
@@ -27,6 +28,10 @@ const routeConfig = (hasToken: boolean = false): RouteObject[] => [
     path: '/auth/redirect',
     element: <AuthRedirect />,
     loader: authResultLoader
+  },
+  {
+    path: '/dashboard',
+    element: <DashboardView />
   },
   // catch-all route
   {

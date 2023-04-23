@@ -48,8 +48,9 @@ interface TwitchNotificationEvent {
 }
 
 interface SubscriptionOption {
+  name: string
   friendlyName: string
-  type: string
+  scopes: string[]
   selected: boolean
 }
 
