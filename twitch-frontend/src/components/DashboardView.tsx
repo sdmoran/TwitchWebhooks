@@ -27,7 +27,7 @@ function DashboardView (): ReactElement {
   const navigate = useNavigate()
 
   const handleNavigate = (): void => {
-    const route = userData.twitchId.length < 1 ? `/notifications/${userData.twitchId}` : '/404'
+    const route = userData.twitchId.length < 1 ? '/404' : `/notifications/${userData.twitchId}` // TODO better error handling, 404 not very descriptive
     const selectedEventNames = SUBSCRIPTION_OPTIONS.filter((elt) => { return elt.selected }).map((elt) => { return elt.name })
     const params = new URLSearchParams()
     params.append(EVENT_TYPES_URL_PARAMETER, selectedEventNames.join(','))

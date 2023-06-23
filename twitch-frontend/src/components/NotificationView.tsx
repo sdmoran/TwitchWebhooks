@@ -7,7 +7,7 @@ import ErrorMessage from './ErrorMessage'
 import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from '../constants'
 import { useUserContext } from '../state/UserContext'
 
-const WEBSOCKET_URL = 'wss://eventsub-beta.wss.twitch.tv/ws'
+const WEBSOCKET_URL = 'wss://eventsub.wss.twitch.tv/ws'
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID ?? 'fake_client_id'
 
 const TEST_EVENT: ViewerEvent = {
