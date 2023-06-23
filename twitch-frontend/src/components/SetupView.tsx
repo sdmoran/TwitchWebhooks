@@ -74,7 +74,7 @@ function SetupView (props: ISetupViewProps): ReactElement {
   let submitButton
   if (userInfo.id !== undefined) {
     userInfoCard = <UserInfoCard user={userInfo}/>
-    submitButton = <button onClick={() => { window.location.href = 'https://id.twitch.tv/oauth2/authorize?response_type=token&amp;client_id=153e68kq58wn04srqjrf6cuc9vw329&amp;scope=chat%3Aread+moderator%3Aread%3Afollowers&amp;redirect_uri=http://localhost:3000/auth/redirect' }}>Authenticate with Twitch to Subscribe to Notifications {'>>'}</button>
+    submitButton = <button onClick={() => { window.location.href = `https://id.twitch.tv/oauth2/authorize?response_type=token&amp;client_id=153e68kq58wn04srqjrf6cuc9vw329&amp;scope=chat%3Aread+moderator%3Aread%3Afollowers&amp;redirect_uri=${window.location.protocol}//${window.location.host}/auth/redirect` }}>Authenticate with Twitch to Subscribe to Notifications {'>>'}</button>
   }
 
   return (

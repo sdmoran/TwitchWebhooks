@@ -1,11 +1,11 @@
 const express = require('express')
+const path = require('path')
 const fs = require('fs')
 require('dotenv').config();
 
 const app = express()
-app.use("/",express.static("public"))
-
-const port = 5000
+app.use('/', express.static("public/"))
+const port = 3000
 
 // Initialize on startup
 let CLIENT_TOKEN = ""
@@ -67,6 +67,10 @@ app.get('/api/user/:username', async (req, res) => {
 
 app.get('/api/scopes', async (req, res) => {
     res.send(eventsWithScopes);
+})
+
+app.get('*', (req, res) =>{
+    res.sendFile(path.join(__dirname+'/public/index.html'));
 })
 
 app.listen(port, () => {
