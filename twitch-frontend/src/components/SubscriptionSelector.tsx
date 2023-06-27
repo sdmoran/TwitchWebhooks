@@ -3,33 +3,30 @@ import { type SubscriptionOption } from '../models/Twitch'
 
 interface ISubscriptionSelectorProps {
   subscriptionTypes: SubscriptionOption[]
+  setSubscriptionTypes: (scopes: SubscriptionOption[]) => void
 }
 
 function SubscriptionSelector (props: ISubscriptionSelectorProps): ReactElement {
-  const [subscriptions, setSubscriptions] = useState(props.subscriptionTypes)
-
-  function handleChange (e: any, data: SubscriptionOption, idx: number): void {
+  function handleChange (data: SubscriptionOption, idx: number) {
     data.selected = !data.selected
-    const newSubs = [...subscriptions]
+    const newSubs = [...props.subscriptionTypes]
     newSubs[idx] = data // TODO check index in bounds
-    setSubscriptions(newSubs)
+    props.setSubscriptionTypes(newSubs)
   }
 
   const elts = props.subscriptionTypes.map((elt, idx) => {
     return (
-            <div className="HorizontalCardContainer" key={elt.name}>
-                <button className={elt.selected ? 'ToggleButton noselect active' : 'ToggleButton noselect'} onClick={(e) => { handleChange(e, elt, idx) }}>
-                    {elt.friendlyName}
-                </button>
-            </div>
+    <div className="HorizontalCardContainer" key={elt.name}>
+        <button className={elt.selected ? 'ToggleButton noselect active' : 'ToggleButton noselect'} onClick={ (e=> handleChange(elt, idx))}>
+            {elt.friendlyName}
+        </button>
+    </div>
     )
   })
 
   // Get selected events
   const selectedEvents = props.subscriptionTypes.filter((elt) => {
-    // if (elt.selected) {
     return elt.selected
-    // }
   })
 
   // Get scopes needed for selected events

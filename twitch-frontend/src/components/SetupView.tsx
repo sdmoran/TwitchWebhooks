@@ -1,4 +1,5 @@
 import React, { useEffect, type ReactElement } from 'react'
+import { getScopes } from '../api/LocalAPI'
 import { type SubscriptionOption } from '../models/Twitch'
 import SubscriptionSelector from './SubscriptionSelector'
 import UserInfoCard from './UserInfoCard'
@@ -17,27 +18,35 @@ function SetupView (props: ISetupViewProps): ReactElement {
   const [twitchUserName, setTwitchUserName] = React.useState('')
   const [userInfo, setUserInfo] = React.useState({ id: undefined })
   const [err, setErr] = React.useState('')
-  const [eventsWithScopes, setEventsWithScopes] = React.useState([] as SubscriptionOption[])
+  const [eventsWithScopes, _setEventsWithScopes] = React.useState([] as SubscriptionOption[])
+  const [clientId, setClientId] = React.useState('')
 
-  const getScopes = async function (): Promise<void> {
-    const scopes = await fetch('/api/scopes',
-      {
-        method: 'GET'
-      })
-    const scopeJson = await scopes.json()
-    console.log(scopeJson)
-    setEventsWithScopes(scopeJson)
+  const setEventsWithScopes = function(scopes: SubscriptionOption[]) {
+    _setEventsWithScopes(scopes)
   }
 
   const handleChange = function (event: React.ChangeEvent<HTMLInputElement>): void {
     setTwitchUserName(event.target.value)
   }
 
+  const buildAuthUrl = function(protocol: string, host: string, clientId: string, selectedScopes: string[] ): string {
+    const encodedScopes = selectedScopes.map((str) => encodeURIComponent(str));
+    const scopeStr = encodedScopes.join('+');
+    return `https://id.twitch.tv/oauth2/authorize?response_type=token&amp;client_id=${clientId}&amp;scope=${scopeStr}&amp;redirect_uri=${protocol}//${host}/auth/redirect` // scopes: chat%3Aread+moderator%3Aread%3Afollowers
+  }
+
+  const setup = async function (): Promise<void> {
+    setClientId(props.clientId)
+    try {
+      const scopes = await getScopes()
+      setEventsWithScopes(scopes)
+    } catch(e) {
+      setErr(`Failed to get scopes from backend: ${(e as Error).message}`)
+    }
+  }
+
   useEffect(() => {
-    getScopes()
-      .catch((e) => {
-        setErr(`Failed to get scopes from backend: ${(e as Error).message}`)
-      })
+    setup()
   }, [])
 
   const getUserId = async function (userName: string): Promise<void> {
@@ -74,7 +83,7 @@ function SetupView (props: ISetupViewProps): ReactElement {
   let submitButton
   if (userInfo.id !== undefined) {
     userInfoCard = <UserInfoCard user={userInfo}/>
-    submitButton = <button onClick={() => { window.location.href = `https://id.twitch.tv/oauth2/authorize?response_type=token&amp;client_id=153e68kq58wn04srqjrf6cuc9vw329&amp;scope=chat%3Aread+moderator%3Aread%3Afollowers&amp;redirect_uri=${window.location.protocol}//${window.location.host}/auth/redirect` }}>Authenticate with Twitch to Subscribe to Notifications {'>>'}</button>
+    submitButton = <button onClick={() => { window.location.href = buildAuthUrl(window.location.protocol, window.location.host, clientId, eventsWithScopes.filter(elt => elt.selected).flatMap(elt => elt.scopes))  }}>Authenticate with Twitch to Subscribe to Notifications {'>>'}</button>
   }
 
   return (
@@ -91,11 +100,8 @@ function SetupView (props: ISetupViewProps): ReactElement {
             {userInfoCard}
             <h2>{err}</h2>
         </div>
-        <br/>
-        <SubscriptionSelector subscriptionTypes={eventsWithScopes}/>
-        <br/>
-        <br/>
-        {submitButton}
+        <SubscriptionSelector subscriptionTypes={eventsWithScopes} setSubscriptionTypes={setEventsWithScopes}/>
+        {submitButton} 
       </div>
     </div>
   )

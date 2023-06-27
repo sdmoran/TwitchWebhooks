@@ -5,30 +5,42 @@ A few options from here:
 - change permissions/account (clears token)
 */
 
-import React, { type ReactElement } from 'react'
+import React, { useEffect, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getScopes } from '../api/LocalAPI'
 import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from '../constants'
+import { SubscriptionOption } from '../models/Twitch'
 import { useUserContext } from '../state/UserContext'
 import SubscriptionSelector from './SubscriptionSelector'
 
-const SUBSCRIPTION_OPTIONS = [
-  {
-    name: 'channel.follow',
-    friendlyName: 'Channel Follow',
-    scopes: ['moderator:read:followers'],
-    selected: false
-  }
-]
 
 function DashboardView (): ReactElement {
   const [preview, setPreview] = React.useState(true)
   const { userData } = useUserContext()
+  const [eventsWithScopes, _setEventsWithScopes] = React.useState([] as SubscriptionOption[])
+
+  const setup = async function(): Promise<void> {
+    try {
+      const scopes = await getScopes()
+      setEventsWithScopes(scopes)
+    } catch(e) {
+      console.log(e)
+    }
+  }
+
+  useEffect(() => {
+    setup()
+  }, [])
+
+  const setEventsWithScopes = function(scopes: SubscriptionOption[]) {
+    _setEventsWithScopes(scopes)
+  }
 
   const navigate = useNavigate()
 
   const handleNavigate = (): void => {
     const route = userData.twitchId.length < 1 ? '/404' : `/notifications/${userData.twitchId}` // TODO better error handling, 404 not very descriptive
-    const selectedEventNames = SUBSCRIPTION_OPTIONS.filter((elt) => { return elt.selected }).map((elt) => { return elt.name })
+    const selectedEventNames = eventsWithScopes.filter((elt) => { return elt.selected }).map((elt) => { return elt.name })
     const params = new URLSearchParams()
     params.append(EVENT_TYPES_URL_PARAMETER, selectedEventNames.join(','))
     if (preview) {
@@ -51,7 +63,7 @@ function DashboardView (): ReactElement {
         </ul>
       </div>
 
-      <SubscriptionSelector subscriptionTypes={SUBSCRIPTION_OPTIONS}/>
+      <SubscriptionSelector subscriptionTypes={eventsWithScopes} setSubscriptionTypes={setEventsWithScopes}/>
 
       <h2>Show preview?
           {/* Feels a little weird to have a button inside a header, but W3C says it's ok so I'm going with it :) */}
