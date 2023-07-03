@@ -1,4 +1,5 @@
 import React, { createContext, type ReactNode, useContext, useState } from 'react'
+import { getUserData, getActiveUserName, storeUserData, setActiveUserName } from './Cookies'
 import { type UserData } from './Types'
 
 interface Props {
@@ -26,7 +27,14 @@ const UserContext = createContext<UserContextType>(placeholder)
 const useUserContext = (): UserContextType => useContext(UserContext)
 
 const UserContextProvider = function ({ children }: Props): any {
-  const [user, setUser] = useState<UserData>({ username: '', token: { value: '', scopes: [] }, twitchId: '' })
+  const userData = getUserData(getActiveUserName())
+  const [user, _setUser] = useState<UserData>(userData)
+
+  const setUser = function(user: UserData) {
+    storeUserData(user)
+    setActiveUserName(user.username)
+    _setUser(user)
+  }
 
   const value = React.useMemo(() => ({
     userData: user,

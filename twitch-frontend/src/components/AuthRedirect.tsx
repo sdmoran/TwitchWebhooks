@@ -78,7 +78,7 @@ function AuthRedirect (): ReactElement {
     validateToken(loaderData)
       .then((tokenResponse) => {
         if (tokenResponse === undefined) {
-          console.log('Short circuiting')
+          console.log('Token was undefined')
         } else {
           const result = parseTokenResponse(tokenResponse)
           if (result !== undefined && result.twitchId.length > 1) {

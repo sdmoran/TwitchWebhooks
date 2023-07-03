@@ -32,7 +32,7 @@ function SetupView (props: ISetupViewProps): ReactElement {
   const buildAuthUrl = function(protocol: string, host: string, clientId: string, selectedScopes: string[] ): string {
     const encodedScopes = selectedScopes.map((str) => encodeURIComponent(str));
     const scopeStr = encodedScopes.join('+');
-    return `https://id.twitch.tv/oauth2/authorize?response_type=token&amp;client_id=${clientId}&amp;scope=${scopeStr}&amp;redirect_uri=${protocol}//${host}/auth/redirect` // scopes: chat%3Aread+moderator%3Aread%3Afollowers
+    return `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${clientId}&scope=${scopeStr}&redirect_uri=${protocol}//${host}/auth/redirect` // scopes: chat%3Aread+moderator%3Aread%3Afollowers
   }
 
   const setup = async function (): Promise<void> {

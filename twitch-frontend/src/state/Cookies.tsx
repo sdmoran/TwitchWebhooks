@@ -1,8 +1,9 @@
+import { COOKIE_NAME } from '../constants'
 import { type UserData } from './Types'
 
 interface CookieData {
+    ActiveUserName: string
     Users: UserData[]
-    Token: string
 }
 
 // Get ALL UserData from cookies.
@@ -11,8 +12,19 @@ function getAllUserData (): UserData[] {
     return c.Users
 }
 
-// Try to get UserData matching a username from cookies. If not found, returns null.
-function getUserData (username: string): UserData | null {
+function getActiveUserName(): string {
+    const c = readCookie()
+    return c.ActiveUserName
+}
+
+function setActiveUserName(username: string) {
+    const c = readCookie()
+    c.ActiveUserName = username
+    writeCookie(c)
+}
+
+// Try to get UserData matching a username from cookies.
+function getUserData (username: string): UserData {
   const userDataList = getAllUserData()
   console.log(userDataList)
   for (const userData of userDataList) {
@@ -20,7 +32,8 @@ function getUserData (username: string): UserData | null {
       return userData
     }
   }
-  return null
+  // Empty user if not found. TODO revisit, maybe null instead?
+  return { username: '', token: { value: '', scopes: [] }, twitchId: '' }
 }
 
 // Store an array of UserData objects.
@@ -42,16 +55,6 @@ function storeUserData (userData: UserData): void {
   storeAllUserData(userDataList)
 }
 
-function getToken (): string {
-    const c = readCookie()
-    return c.Token
-}
-
-function storeToken (token: string): void {
-    const c = readCookie()
-    c.Token = token
-    writeCookie(c)
-}
 
 // Type guard for CookieData
 function isCookieData(c: CookieData | object): c is CookieData {
@@ -60,31 +63,38 @@ function isCookieData(c: CookieData | object): c is CookieData {
 
 // Read all cookies from storage and write to 
 function readCookie(): CookieData {
-    const c = document.cookie
-    console.log(c)
+    function getCookie(name: string) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts != undefined && parts.length === 2) {
+            return parts[1].split(';').shift();
+        }
+      }
+
+    const c = getCookie(COOKIE_NAME) || ""
     try {
-        const parsed = JSON.parse(document.cookie) as CookieData
+        const parsed = JSON.parse(c) as CookieData
         if (isCookieData(parsed)) {
             return parsed
         } else {
-            throw Error("Could not deserialize cookie into CookieData!")
+            throw Error('Could not deserialize cookie into CookieData!')
         }
     } catch(e) {
         console.log(e)
         return {
+            ActiveUserName: '',
             Users: [],
-            Token: ""
         }
     }
 }
 
 function writeCookie(c: CookieData) {
-    document.cookie = JSON.stringify(c) // expiry?
+    document.cookie = `${COOKIE_NAME}=${JSON.stringify(c)}` // expiry?
 }
 
 export {
-  getToken,
-  storeToken,
   storeUserData,
-  getUserData
+  getUserData,
+  setActiveUserName,
+  getActiveUserName,
 }

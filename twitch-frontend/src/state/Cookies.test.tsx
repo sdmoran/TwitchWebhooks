@@ -1,11 +1,4 @@
-import { getToken, storeToken, storeUserData, getUserData } from './Cookies'
-
-test('Test writing and reading token from cookies', async () => {
-    const token = "My cool token :)"
-    storeToken(token)
-    const result = getToken()
-    expect(result).toEqual(token)
-})
+import { storeUserData, getUserData } from './Cookies'
 
 test('Test writing and reading users from cookies', async () => {
     const jeff = {
