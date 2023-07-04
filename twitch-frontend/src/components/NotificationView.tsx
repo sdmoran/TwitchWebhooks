@@ -1,11 +1,12 @@
-import React, { type ReactElement, useEffect } from 'react'
-import Notification from './Notification'
+import React, { type ReactElement, useEffect, useState } from 'react'
+import Notification, { CustomizeOptions } from './Notification'
 import { type LoaderFunctionArgs, useLoaderData, useSearchParams, type Params } from 'react-router-dom'
 import { type ViewerEvent, ViewerEventSource, ViewerEventType } from '../models/ViewerEvent'
 import TwitchWSClient from '../api/TwitchWSClient'
 import ErrorMessage from './ErrorMessage'
 import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from '../constants'
 import { useUserContext } from '../state/UserContext'
+import { readNotificationOptions } from '../state/Cookies'
 
 const WEBSOCKET_URL = 'wss://eventsub.wss.twitch.tv/ws'
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID ?? 'fake_client_id'
@@ -35,6 +36,7 @@ function NotificationView (): ReactElement {
   const [currentEvent, setCurrentEvent] = React.useState<ViewerEvent | undefined>(undefined)
   const [twitchClient] = React.useState<TwitchWSClient>(new TwitchWSClient(WEBSOCKET_URL, userData.token.value, CLIENT_ID, receiveEvent))
   const [queryParams] = useSearchParams()
+  const [options, setOptions] = useState<CustomizeOptions>({color: "", audioFileName: ""})
 
   function receiveEvent (event: ViewerEvent): void {
     setEvents([...events, event])
@@ -49,6 +51,7 @@ function NotificationView (): ReactElement {
   // On view creation, setup client
   useEffect((): void => {
     const init = async (): Promise<void> => {
+      // Setup twitch client
       await twitchClient.initialize()
 
       const subscriptions = queryParams.get(EVENT_TYPES_URL_PARAMETER)
@@ -71,11 +74,18 @@ function NotificationView (): ReactElement {
         }
       }
 
+      // Read options from cookies
+      let options = readNotificationOptions()
+      if (options !== null) {
+        setOptions(options)
+      }
+
       // Test event will show once on initial page render if query parameter present.
       if (queryParams.get(PREVIEW_URL_PARAMETER) === '1') {
         showNotification(TEST_EVENT)
       }
     }
+    
     init().catch((e) => { console.log('FAILED TO RENDER'); console.log(e) })
   }, [])
 
@@ -98,7 +108,7 @@ function NotificationView (): ReactElement {
     return await twitchClient.subscribeToEvent(eventType, userId)
   }
 
-  const elt = (error != null) ? <ErrorMessage err={error}/> : <Notification viewerEvent={currentEvent} show={displayMessage} />
+  const elt = (error != null) ? <ErrorMessage err={error}/> : <Notification viewerEvent={currentEvent} show={displayMessage} customizeOptions={options} />
 
   return (
         <div className="container">

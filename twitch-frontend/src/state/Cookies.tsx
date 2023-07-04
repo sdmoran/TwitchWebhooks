@@ -1,4 +1,5 @@
-import { COOKIE_NAME } from '../constants'
+import { CustomizeOptions } from '../components/Notification'
+import { USER_COOKIE_NAME, OPTIONS_COOKIE_NAME } from '../constants'
 import { type UserData } from './Types'
 
 interface CookieData {
@@ -8,41 +9,49 @@ interface CookieData {
 
 // Get ALL UserData from cookies.
 function getAllUserData (): UserData[] {
-    const c = readCookie()
-    return c.Users
+    const c = readCookie(USER_COOKIE_NAME)
+    if(c !== null) {
+      return c.Users
+    }
+    return []
 }
 
+// Get ACTIVE user name from cookies.
+// (active user is the user whose token is currently being used to subscribe to events.)
 function getActiveUserName(): string {
-    const c = readCookie()
-    return c.ActiveUserName
+    const c = readCookie(USER_COOKIE_NAME)
+    if (c !== null) {
+      return c.ActiveUserName
+    }
+    return ""
 }
 
+// Set active user name.
 function setActiveUserName(username: string) {
-    const c = readCookie()
+    const c = readCookie(USER_COOKIE_NAME)
     c.ActiveUserName = username
-    writeCookie(c)
+    writeCookie(c, USER_COOKIE_NAME)
 }
-
-// Try to get UserData matching a username from cookies.
+ 
+// Try to get UserData matching a username from cookies. Returns empty user if not found TODO revisit, maybe null instead?
 function getUserData (username: string): UserData {
   const userDataList = getAllUserData()
-  console.log(userDataList)
   for (const userData of userDataList) {
     if (userData.username === username) {
       return userData
     }
   }
-  // Empty user if not found. TODO revisit, maybe null instead?
   return { username: '', token: { value: '', scopes: [] }, twitchId: '' }
 }
 
 // Store an array of UserData objects.
 function storeAllUserData (userData: UserData[]): void {
-    const c = readCookie()
+    const c = readCookie(USER_COOKIE_NAME)
     c.Users = userData
-    writeCookie(c)
+    writeCookie(c, USER_COOKIE_NAME)
 }
 
+// Store a single UserData object
 function storeUserData (userData: UserData): void {
   const userDataList = getAllUserData()
   for (const user of userDataList) {
@@ -55,14 +64,25 @@ function storeUserData (userData: UserData): void {
   storeAllUserData(userDataList)
 }
 
-
 // Type guard for CookieData
 function isCookieData(c: CookieData | object): c is CookieData {
     return 'Users' in c && 'Token' in c
 }
 
-// Read all cookies from storage and write to 
-function readCookie(): CookieData {
+// Type guard for CustomizeOptions
+
+function guardType(obj: any, typeGuard: (c: any) => boolean): boolean {
+  try {
+    const parsed = JSON.parse(obj) as typeof obj
+    return typeGuard(parsed)
+  } catch(e) {
+    console.log(`Could not deserialize cookie!`, e)
+    return false
+  }
+}
+
+// Read cookie with given name from storage
+function readCookie(cookieName: string): any {
     function getCookie(name: string) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -71,25 +91,28 @@ function readCookie(): CookieData {
         }
       }
 
-    const c = getCookie(COOKIE_NAME) || ""
+    const c = getCookie(cookieName) || ""
+
     try {
-        const parsed = JSON.parse(c) as CookieData
-        if (isCookieData(parsed)) {
-            return parsed
-        } else {
-            throw Error('Could not deserialize cookie into CookieData!')
-        }
+        const parsed = JSON.parse(c) as any
+        return parsed
     } catch(e) {
-        console.log(e)
-        return {
-            ActiveUserName: '',
-            Users: [],
-        }
+        return null
     }
 }
 
-function writeCookie(c: CookieData) {
-    document.cookie = `${COOKIE_NAME}=${JSON.stringify(c)}` // expiry?
+// Write cookie for notifications options
+function writeNotificationOptions(options: CustomizeOptions) {
+  writeCookie(options, OPTIONS_COOKIE_NAME)
+}
+
+// Read notification options
+function readNotificationOptions(): CustomizeOptions {
+  return readCookie(OPTIONS_COOKIE_NAME) as CustomizeOptions
+}
+
+function writeCookie(cookie: any, cookieName: string) {
+    document.cookie = `${cookieName}=${JSON.stringify(cookie)}` // expiry?
 }
 
 export {
@@ -97,4 +120,6 @@ export {
   getUserData,
   setActiveUserName,
   getActiveUserName,
+  writeNotificationOptions,
+  readNotificationOptions
 }

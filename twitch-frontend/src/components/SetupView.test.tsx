@@ -49,7 +49,7 @@ afterAll(() => { server.close() })
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <SetupView token={TOKEN} clientId={CLIENT_ID}/>
+    element: <SetupView clientId={CLIENT_ID}/>
   }
 ])
 

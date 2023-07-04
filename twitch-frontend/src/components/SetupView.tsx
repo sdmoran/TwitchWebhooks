@@ -6,7 +6,6 @@ import UserInfoCard from './UserInfoCard'
 
 // Interface for method callback to return data from setup view.
 interface ISetupViewProps {
-  token: string
   clientId: string
 }
 
