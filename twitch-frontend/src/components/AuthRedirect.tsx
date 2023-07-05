@@ -93,7 +93,8 @@ function AuthRedirect (): ReactElement {
           }
         }
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log("Failed to validate token with twitch. ", e)
         setErr(new Error('Failed to get response from Twitch!', { cause: 'Validating the token failed.' }))
       })
   }, [loaderData])

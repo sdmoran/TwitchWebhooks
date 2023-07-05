@@ -10,7 +10,7 @@ interface CookieData {
 // Get ALL UserData from cookies.
 function getAllUserData (): UserData[] {
     const c = readCookie(USER_COOKIE_NAME)
-    if(c !== null) {
+    if(c !== null && c.Users !== null ) {
       return c.Users
     }
     return []
@@ -36,9 +36,11 @@ function setActiveUserName(username: string) {
 // Try to get UserData matching a username from cookies. Returns empty user if not found TODO revisit, maybe null instead?
 function getUserData (username: string): UserData {
   const userDataList = getAllUserData()
-  for (const userData of userDataList) {
-    if (userData.username === username) {
-      return userData
+  if (userDataList !== undefined) {
+    for (const userData of userDataList) {
+      if (userData.username === username) {
+        return userData
+      }
     }
   }
   return { username: '', token: { value: '', scopes: [] }, twitchId: '' }
@@ -46,21 +48,29 @@ function getUserData (username: string): UserData {
 
 // Store an array of UserData objects.
 function storeAllUserData (userData: UserData[]): void {
-    const c = readCookie(USER_COOKIE_NAME)
+    let c = readCookie(USER_COOKIE_NAME)
+    if (c === null || !guardType(c, isCookieData)) {
+      c = {ActiveUserName: "", Users: []} as CookieData
+    }
     c.Users = userData
     writeCookie(c, USER_COOKIE_NAME)
 }
 
 // Store a single UserData object
 function storeUserData (userData: UserData): void {
-  const userDataList = getAllUserData()
-  for (const user of userDataList) {
-    if (user.username === userData.username) {
-      user.token = userData.token
-      return
+  let userDataList = getAllUserData()
+  if (userDataList === undefined) {
+    userDataList = [userData]
+  } else {
+    for (const user of userDataList) {
+      if (user.username === userData.username) {
+        user.token = userData.token
+        return
+      }
     }
+    userDataList.push(userData)
   }
-  userDataList.push(userData)
+
   storeAllUserData(userDataList)
 }
 
@@ -97,6 +107,7 @@ function readCookie(cookieName: string): any {
         const parsed = JSON.parse(c) as any
         return parsed
     } catch(e) {
+        console.log("Couldn't parse cookie: ", e)
         return null
     }
 }
