@@ -107,7 +107,7 @@ function readCookie(cookieName: string): any {
         const parsed = JSON.parse(c) as any
         return parsed
     } catch(e) {
-        console.log("Couldn't parse cookie: ", e)
+        console.log("Couldn't parse cookie")
         return null
     }
 }
