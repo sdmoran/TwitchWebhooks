@@ -40,13 +40,33 @@ function NotificationView (): ReactElement {
 
   function receiveEvent (event: ViewerEvent): void {
     setEvents([...events, event])
-    showNotification(event) // TODO make so this won't overwrite if multiple follows in succession. Queue it up somehow.
   }
 
   async function playAudioCue (audioPath: string): Promise<void> {
     const audio = new Audio(audioPath)
     await audio.play()
   }
+
+  useEffect(() => {
+    if (events.length > 0 && !currentEvent) {
+      // Start displaying events if there are events in the list and no current event being displayed
+      setCurrentEvent(events[0]);
+      setEvents(prevEvents => prevEvents.slice(1));
+    }
+  }, [events, currentEvent]);
+
+  useEffect(() => {
+    if (currentEvent) {
+      // Display the current event for 3 seconds TODO make configurable
+      const timeoutId = setTimeout(() => {
+        setCurrentEvent(undefined);
+      }, 3000);
+
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    }
+  }, [currentEvent]);
 
   // On view creation, setup client
   useEffect((): void => {
@@ -82,23 +102,12 @@ function NotificationView (): ReactElement {
 
       // Test event will show once on initial page render if query parameter present.
       if (queryParams.get(PREVIEW_URL_PARAMETER) === '1') {
-        showNotification(TEST_EVENT)
+        receiveEvent(TEST_EVENT)
       }
     }
     
     init().catch((e) => { console.log('FAILED TO RENDER'); console.log(e) })
   }, [])
-
-  // Show notification message at top of screen for a duration.
-  function showNotification (event: ViewerEvent): void {
-    setCurrentEvent(event)
-    setDisplayMessage(true)
-    void playAudioCue(AUDIO_PATH)
-
-    setTimeout(() => {
-      setDisplayMessage(false)
-    }, messageDisplaySeconds * 1000)
-  }
 
   // Call Twitch API and enable subscription for the provided userId.
   async function setupSubscription (eventType: string, userId: string): Promise<Error | undefined> {
@@ -108,12 +117,12 @@ function NotificationView (): ReactElement {
     return await twitchClient.subscribeToEvent(eventType, userId)
   }
 
-  const elt = (error != null) ? <ErrorMessage err={error}/> : <Notification viewerEvent={currentEvent} show={displayMessage} customizeOptions={options} />
+  const elt = currentEvent == null ? " " : <Notification viewerEvent={currentEvent} customizeOptions={options} />
 
   return (
-        <div className="container">
-            {elt}
-        </div>
+    <div className="container">
+      <Notification viewerEvent={currentEvent} customizeOptions={options} />
+    </div>
   )
 }
 

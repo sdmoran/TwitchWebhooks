@@ -35,7 +35,7 @@ function CustomizeView (): ReactElement {
                 <p>Choose some options for how you want your notification to appear below.</p>
                 <p>Once you are happy with how the notification looks, click the button to save. Your selections will be applied on the Notifications page.</p>
                 <h2>Preview</h2>
-                <Notification viewerEvent={event} show={true} customizeOptions={options} />
+                <Notification viewerEvent={event} customizeOptions={options} />
                 
                 <h2>Color Selector</h2>
                 <div className="container" style={{display: "flex", flexDirection: "column", alignSelf: "center"}}>

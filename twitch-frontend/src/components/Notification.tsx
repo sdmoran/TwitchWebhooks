@@ -1,5 +1,5 @@
-import React, { type ReactElement, useEffect } from 'react'
-import { type ViewerEvent, ViewerEventType } from '../models/ViewerEvent'
+import React, { type ReactElement, useEffect, useState } from 'react'
+import { type ViewerEvent, ViewerEventType, ViewerEventSource } from '../models/ViewerEvent'
 
 interface CustomizeOptions {
   color: string | undefined
@@ -15,30 +15,47 @@ class CustomizeOptions implements CustomizeOptions {
 
 interface Props {
   viewerEvent?: ViewerEvent
-  show?: boolean
   customizeOptions: CustomizeOptions
   // move audio here??
 }
 
 function Notification (props: Props): ReactElement {
-  const [show, setShow] = React.useState(props.show)
+  const [prevEvent, setPrevEvent] = useState(undefined as undefined | ViewerEvent)
 
+  // When we receive an event, keep track of it so when the event from props is unset (notification is hidden)
+  // we can smoothly transition out without suddenly changing text to something else.
   useEffect(() => {
-    setShow(props.show)
-  }, [props.show])
+    if(props.viewerEvent !== undefined) {
+      setPrevEvent(props.viewerEvent)
+    }
+  }, [props])
 
   const style = {
     'color': props.customizeOptions.color
   }
 
-  // TODO much more robust function for determining message text.
-  // Should be way more configurable and handle other EventTypes (channel.update, channel.subscribe, cheer etc.)
-  const eventMsg = props.viewerEvent?.type === ViewerEventType.FOLLOW ? `Thanks for following, ${props.viewerEvent?.userName ?? 'SAMPLE USER'}!` : 'UNKNOWN EVENT TYPE'
+  const getEventText = function(): string {
+    if(props.viewerEvent !== undefined) {
+      return formatMessage(props.viewerEvent)
+    } else if (prevEvent !== undefined) {
+      return formatMessage(prevEvent)
+    }
+    return ""
+  }
+
+  const formatMessage = function(event: ViewerEvent): string {
+    switch(event.type) {
+      case ViewerEventType.FOLLOW:
+        return `Thanks for following, ${event.userName}!`
+      default: // TODO better default?
+        return `Thanks for doing the thing, ${event.userName}!`
+    }
+  }
 
   return (
-        <div className={show !== undefined && show ? 'notification-show' : 'notification-hide'} data-testid="notification-elt">
-             <h1 className="NotificationText" style={style}>{eventMsg}</h1>
-         </div>
+    <div className={`container notification-${props.viewerEvent ? 'show':'hide'}`} data-testid="notification-elt">
+          <h1 className="NotificationText" style={style}>{getEventText()}</h1>
+      </div>
   )
 }
 
