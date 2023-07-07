@@ -1,12 +1,12 @@
 import React, { type ReactElement, useEffect, useState } from 'react'
-import Notification, { CustomizeOptions } from './Notification'
+import Notification, { type CustomizeOptions } from './Notification'
 import { type LoaderFunctionArgs, useLoaderData, useSearchParams, type Params } from 'react-router-dom'
 import { type ViewerEvent, ViewerEventSource, ViewerEventType } from '../models/ViewerEvent'
 import TwitchWSClient from '../api/TwitchWSClient'
-import ErrorMessage from './ErrorMessage'
 import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from '../constants'
 import { useUserContext } from '../state/UserContext'
 import { readNotificationOptions } from '../state/Cookies'
+import ErrorMessage from './ErrorMessage'
 
 const WEBSOCKET_URL = 'wss://eventsub.wss.twitch.tv/ws'
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID ?? 'fake_client_id'
@@ -30,43 +30,43 @@ function NotificationView (): ReactElement {
   const obj = useLoaderData() as any
   const [userId] = React.useState(obj?.twitchUserId)
   const [error, setError] = React.useState<Error | undefined>(undefined)
-  const [messageDisplaySeconds] = React.useState(5)
-  const [displayMessage, setDisplayMessage] = React.useState(false)
   const [events, setEvents] = React.useState<ViewerEvent[]>([])
   const [currentEvent, setCurrentEvent] = React.useState<ViewerEvent | undefined>(undefined)
   const [twitchClient] = React.useState<TwitchWSClient>(new TwitchWSClient(WEBSOCKET_URL, userData.token.value, CLIENT_ID, receiveEvent))
   const [queryParams] = useSearchParams()
-  const [options, setOptions] = useState<CustomizeOptions>({color: "", audioFileName: ""})
+  const [options, setOptions] = useState<CustomizeOptions>({ color: '', audioFileName: '' })
 
   function receiveEvent (event: ViewerEvent): void {
     setEvents([...events, event])
   }
 
+  // TODO consider moving to Notification. Could be customizable with options too
   async function playAudioCue (audioPath: string): Promise<void> {
     const audio = new Audio(audioPath)
     await audio.play()
   }
 
   useEffect(() => {
-    if (events.length > 0 && !currentEvent) {
+    if (events.length > 0 && (currentEvent == null)) {
       // Start displaying events if there are events in the list and no current event being displayed
-      setCurrentEvent(events[0]);
-      setEvents(prevEvents => prevEvents.slice(1));
+      setCurrentEvent(events[0])
+      void playAudioCue(AUDIO_PATH)
+      setEvents(prevEvents => prevEvents.slice(1))
     }
-  }, [events, currentEvent]);
+  }, [events, currentEvent])
 
   useEffect(() => {
-    if (currentEvent) {
+    if (currentEvent != null) {
       // Display the current event for 3 seconds TODO make configurable
       const timeoutId = setTimeout(() => {
-        setCurrentEvent(undefined);
-      }, 3000);
+        setCurrentEvent(undefined)
+      }, 3000)
 
       return () => {
-        clearTimeout(timeoutId);
-      };
+        clearTimeout(timeoutId)
+      }
     }
-  }, [currentEvent]);
+  }, [currentEvent])
 
   // On view creation, setup client
   useEffect((): void => {
@@ -95,7 +95,7 @@ function NotificationView (): ReactElement {
       }
 
       // Read options from cookies
-      let options = readNotificationOptions()
+      const options = readNotificationOptions()
       if (options !== null) {
         setOptions(options)
       }
@@ -105,7 +105,7 @@ function NotificationView (): ReactElement {
         receiveEvent(TEST_EVENT)
       }
     }
-    
+
     init().catch((e) => { console.log('FAILED TO RENDER'); console.log(e) })
   }, [])
 
@@ -117,11 +117,13 @@ function NotificationView (): ReactElement {
     return await twitchClient.subscribeToEvent(eventType, userId)
   }
 
-  const elt = currentEvent == null ? " " : <Notification viewerEvent={currentEvent} customizeOptions={options} />
-
   return (
     <div className="container">
-      <Notification viewerEvent={currentEvent} customizeOptions={options} />
+      {
+        error !== undefined
+          ? <ErrorMessage err={error} />
+          : <Notification viewerEvent={currentEvent} customizeOptions={options} />
+      }
     </div>
   )
 }

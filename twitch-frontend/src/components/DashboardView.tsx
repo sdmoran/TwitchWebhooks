@@ -9,30 +9,29 @@ import React, { useEffect, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getScopes } from '../api/LocalAPI'
 import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from '../constants'
-import { SubscriptionOption } from '../models/Twitch'
+import { type SubscriptionOption } from '../models/Twitch'
 import { useUserContext } from '../state/UserContext'
 import SubscriptionSelector from './SubscriptionSelector'
-
 
 function DashboardView (): ReactElement {
   const [preview, setPreview] = React.useState(true)
   const { userData } = useUserContext()
   const [eventsWithScopes, _setEventsWithScopes] = React.useState([] as SubscriptionOption[])
 
-  const setup = async function(): Promise<void> {
+  const setup = async function (): Promise<void> {
     try {
       const scopes = await getScopes()
       setEventsWithScopes(scopes)
-    } catch(e) {
+    } catch (e) {
       console.log(e)
     }
   }
 
   useEffect(() => {
-    setup()
+    void setup()
   }, [])
 
-  const setEventsWithScopes = function(scopes: SubscriptionOption[]) {
+  const setEventsWithScopes = function (scopes: SubscriptionOption[]): void {
     _setEventsWithScopes(scopes)
   }
 

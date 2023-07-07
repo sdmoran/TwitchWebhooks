@@ -20,7 +20,7 @@ function SetupView (props: ISetupViewProps): ReactElement {
   const [eventsWithScopes, _setEventsWithScopes] = React.useState([] as SubscriptionOption[])
   const [clientId, setClientId] = React.useState('')
 
-  const setEventsWithScopes = function(scopes: SubscriptionOption[]) {
+  const setEventsWithScopes = function (scopes: SubscriptionOption[]): void {
     _setEventsWithScopes(scopes)
   }
 
@@ -28,9 +28,9 @@ function SetupView (props: ISetupViewProps): ReactElement {
     setTwitchUserName(event.target.value)
   }
 
-  const buildAuthUrl = function(protocol: string, host: string, clientId: string, selectedScopes: string[] ): string {
-    const encodedScopes = selectedScopes.map((str) => encodeURIComponent(str));
-    const scopeStr = encodedScopes.join('+');
+  const buildAuthUrl = function (protocol: string, host: string, clientId: string, selectedScopes: string[]): string {
+    const encodedScopes = selectedScopes.map((str) => encodeURIComponent(str))
+    const scopeStr = encodedScopes.join('+')
     return `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${clientId}&scope=${scopeStr}&redirect_uri=${protocol}//${host}/auth/redirect` // scopes: chat%3Aread+moderator%3Aread%3Afollowers
   }
 
@@ -39,13 +39,13 @@ function SetupView (props: ISetupViewProps): ReactElement {
     try {
       const scopes = await getScopes()
       setEventsWithScopes(scopes)
-    } catch(e) {
+    } catch (e) {
       setErr(`Failed to get scopes from backend: ${(e as Error).message}`)
     }
   }
 
   useEffect(() => {
-    setup()
+    void setup()
   }, [])
 
   const getUserId = async function (userName: string): Promise<void> {
@@ -82,7 +82,7 @@ function SetupView (props: ISetupViewProps): ReactElement {
   let submitButton
   if (userInfo.id !== undefined) {
     userInfoCard = <UserInfoCard user={userInfo}/>
-    submitButton = <button onClick={() => { window.location.href = buildAuthUrl(window.location.protocol, window.location.host, clientId, eventsWithScopes.filter(elt => elt.selected).flatMap(elt => elt.scopes))  }}>Authenticate with Twitch to Subscribe to Notifications {'>>'}</button>
+    submitButton = <button onClick={() => { window.location.href = buildAuthUrl(window.location.protocol, window.location.host, clientId, eventsWithScopes.filter(elt => elt.selected).flatMap(elt => elt.scopes)) }}>Authenticate with Twitch to Subscribe to Notifications {'>>'}</button>
   }
 
   return (
@@ -100,7 +100,7 @@ function SetupView (props: ISetupViewProps): ReactElement {
             <h2>{err}</h2>
         </div>
         <SubscriptionSelector subscriptionTypes={eventsWithScopes} setSubscriptionTypes={setEventsWithScopes}/>
-        {submitButton} 
+        {submitButton}
       </div>
     </div>
   )

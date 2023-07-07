@@ -1,4 +1,4 @@
-import React, { type ReactElement, useState } from 'react'
+import React, { type ReactElement } from 'react'
 import { type SubscriptionOption } from '../models/Twitch'
 
 interface ISubscriptionSelectorProps {
@@ -7,7 +7,7 @@ interface ISubscriptionSelectorProps {
 }
 
 function SubscriptionSelector (props: ISubscriptionSelectorProps): ReactElement {
-  function handleChange (data: SubscriptionOption, idx: number) {
+  function handleChange (data: SubscriptionOption, idx: number): void {
     data.selected = !data.selected
     const newSubs = [...props.subscriptionTypes]
     newSubs[idx] = data // TODO check index in bounds
@@ -17,7 +17,7 @@ function SubscriptionSelector (props: ISubscriptionSelectorProps): ReactElement 
   const elts = props.subscriptionTypes.map((elt, idx) => {
     return (
     <div className="HorizontalCardContainer" key={elt.name}>
-        <button className={elt.selected ? 'ToggleButton noselect active' : 'ToggleButton noselect'} onClick={ (e=> handleChange(elt, idx))}>
+        <button className={elt.selected ? 'ToggleButton noselect active' : 'ToggleButton noselect'} onClick={ (e => { handleChange(elt, idx) })}>
             {elt.friendlyName}
         </button>
     </div>

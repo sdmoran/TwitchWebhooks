@@ -30,7 +30,7 @@ const UserContextProvider = function ({ children }: Props): any {
   const userData = getUserData(getActiveUserName())
   const [user, _setUser] = useState<UserData>(userData)
 
-  const setUser = function(user: UserData) {
+  const setUser = function (user: UserData): void {
     storeUserData(user)
     setActiveUserName(user.username)
     _setUser(user)

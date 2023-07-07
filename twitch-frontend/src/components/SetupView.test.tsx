@@ -7,7 +7,6 @@ import { UserContext } from '../state/UserContext'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 
-const TOKEN = process.env.REACT_APP_TWITCH_TOKEN ?? 'fake_token'
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID ?? 'fake_client_id'
 
 // Setup mock server
