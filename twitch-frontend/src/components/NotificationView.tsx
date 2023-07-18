@@ -96,7 +96,7 @@ function NotificationView (): ReactElement {
 
       // Read options from cookies
       const options = readNotificationOptions()
-      if (options !== null) {
+      if (options !== undefined) {
         setOptions(options)
       }
 

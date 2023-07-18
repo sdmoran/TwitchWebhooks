@@ -10,7 +10,7 @@ interface CookieData {
 // Get ALL UserData from cookies.
 function getAllUserData (): UserData[] {
   const c = readCookie(USER_COOKIE_NAME)
-  if (c?.Users !== null) {
+  if (c?.Users !== undefined) {
     return c.Users
   }
   return []
@@ -20,7 +20,7 @@ function getAllUserData (): UserData[] {
 // (active user is the user whose token is currently being used to subscribe to events.)
 function getActiveUserName (): string {
   const c = readCookie(USER_COOKIE_NAME)
-  if (c !== null) {
+  if (c !== undefined) {
     return c.ActiveUserName
   }
   return ''
@@ -28,7 +28,10 @@ function getActiveUserName (): string {
 
 // Set active user name.
 function setActiveUserName (username: string): void {
-  const c = readCookie(USER_COOKIE_NAME)
+  let c: CookieData = readCookie(USER_COOKIE_NAME)
+  if (c === undefined || !guardType(c, isCookieData)) {
+    c = { ActiveUserName: '', Users: [] }
+  }
   c.ActiveUserName = username
   writeCookie(c, USER_COOKIE_NAME)
 }
@@ -49,7 +52,7 @@ function getUserData (username: string): UserData {
 // Store an array of UserData objects.
 function storeAllUserData (userData: UserData[]): void {
   let c = readCookie(USER_COOKIE_NAME)
-  if (c === null || !guardType(c, isCookieData)) {
+  if (c === undefined || !guardType(c, isCookieData)) {
     c = { ActiveUserName: '', Users: [] }
   }
   c.Users = userData
@@ -109,7 +112,7 @@ function readCookie (cookieName: string): any {
     return parsed
   } catch (e) {
     console.log("Couldn't parse cookie")
-    return null
+    return undefined
   }
 }
 
