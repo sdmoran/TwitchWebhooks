@@ -15,8 +15,12 @@ async function validateToken (token: string): Promise<TokenResponse> {
       }
     }
   )
-  if (resp.ok) {
-    return await resp.json() as TokenResponse
+  try {
+    if (resp.ok) {
+      return await resp.json() as TokenResponse
+    }
+  } catch {
+    return await Promise.reject(new Error('Failed to parse token response'))
   }
   return await Promise.reject(new Error('Failed to validate token'))
 }
