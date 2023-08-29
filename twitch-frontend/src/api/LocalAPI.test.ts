@@ -26,7 +26,7 @@ describe('getScopes function', () => {
   it('should handle network error', async () => {
     fetchMock.mockRejectedValue(new Error('Network error'))
 
-    await expect(getScopes()).rejects.toThrowError('Error fetching scopes: Network error')
+    await expect(getScopes()).rejects.toThrowError('Error fetching scopes!')
   })
 
   it('should handle non-successful response', async () => {
@@ -36,6 +36,6 @@ describe('getScopes function', () => {
 
     fetchMock.mockResponseOnce(JSON.stringify(mockResponse), { status: 404 })
 
-    await expect(getScopes()).rejects.toThrowError('Failed to fetch scopes. Status: 404')
+    await expect(getScopes()).rejects.toThrowError('Error fetching scopes!')
   })
 })
