@@ -21,7 +21,7 @@ class TwitchWSClient {
   private readonly token: string
   private readonly clientId: string
   private client?: WebSocket
-  private sessionId: string
+  public sessionId: string
   private readonly sendEvent: (event: ViewerEvent) => void // Function to return events back to the main app.
   public isInitialized: boolean
 
@@ -141,4 +141,8 @@ class TwitchWSClient {
   }
 }
 
-export default TwitchWSClient
+export {
+  TwitchWSClient,
+  NOTIFICATION_TYPE,
+  MESSAGE_TYPE
+}
