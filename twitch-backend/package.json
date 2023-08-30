@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.ts",
-  "type": "module",
   "scripts": {
     "test": "npx jest",
-    "start": "node server.js"
+    "start": "npm run build && node server.js",
+    "build": "npx tsc server.ts --esModuleInterop"
   },
   "author": "",
   "license": "ISC",

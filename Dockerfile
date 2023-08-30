@@ -14,11 +14,14 @@ RUN npm install -D eslint @typescript-eslint/parser @typescript-eslint/eslint-pl
 # RUN npm ci --only=production
 RUN npm run build
 
+# copy frontend to backend directory, so frontend files can be served
 RUN cp -r /usr/src/app/twitch-frontend/build /usr/src/app/twitch-backend/public
 
+# build backend
 WORKDIR /usr/src/app/twitch-backend
 RUN npm init -y
 RUN npm install
+RUN npm run build
 
 EXPOSE 3000
 
