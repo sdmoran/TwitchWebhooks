@@ -14,9 +14,12 @@ let CLIENT_TOKEN = ""
 // Constants
 const CLIENT_ID: string = process.env.CLIENT_ID || ""
 const CLIENT_SECRET: string = process.env.CLIENT_SECRET || ""
-const GRANT_TYPE: string = "client_credentials"
+const GRANT_TYPE: string = "client_credentials";
 
-getClientToken(CLIENT_ID, CLIENT_SECRET, GRANT_TYPE)
+// iife to get token
+(async() => {
+    CLIENT_TOKEN = await getClientToken(CLIENT_ID, CLIENT_SECRET, GRANT_TYPE)
+})()
 
 // Make sure we have client ID and secret
 if (CLIENT_ID.length === 0 || CLIENT_SECRET.length === 0) {
