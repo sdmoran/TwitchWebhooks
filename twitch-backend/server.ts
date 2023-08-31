@@ -32,7 +32,7 @@ app.get('/api/user/:username', async (req, res) => {
 })
 
 app.get('/api/scopes', async (req, res) => {
-    let scopes = getEventsWithScopes("eventsWithScopes.json");
+    let scopes = await getEventsWithScopes("eventsWithScopes.json");
     res.send(scopes);
 })
 
