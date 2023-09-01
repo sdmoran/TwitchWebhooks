@@ -16,6 +16,10 @@ RUN npm run build
 
 # copy frontend to backend directory, so frontend files can be served
 RUN cp -r /usr/src/app/twitch-frontend/build /usr/src/app/twitch-backend/public
+# delete .map files
+RUN find /usr/src/app/twitch-backend/public -type f -name "*.map" -delete
+# add env file
+RUN cp /usr/src/app/twitch-frontend/.env /usr/src/app/twitch-backend/public
 
 # build backend
 WORKDIR /usr/src/app/twitch-backend
