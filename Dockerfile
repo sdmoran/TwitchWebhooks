@@ -1,5 +1,7 @@
 FROM node:18
 
+ENV REACT_APP_CLIENT_ID $REACT_APP_CLIENT_ID
+
 # build frontend
 WORKDIR /usr/src/app
 
