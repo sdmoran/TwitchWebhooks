@@ -1,5 +1,5 @@
 import React, { createContext, type ReactNode, useContext, useState } from 'react'
-import { getUserData, getActiveUserName, storeUserData, setActiveUserName } from './Cookies'
+import CookieManager from './Cookies'
 import { type UserData } from './Types'
 
 interface Props {
@@ -27,12 +27,13 @@ const UserContext = createContext<UserContextType>(placeholder)
 const useUserContext = (): UserContextType => useContext(UserContext)
 
 const UserContextProvider = function ({ children }: Props): any {
-  const userData = getUserData(getActiveUserName())
+  const cookieManager = CookieManager.getInstance()
+  const userData = cookieManager.getUserData(cookieManager.getActiveUserName())
   const [user, _setUser] = useState<UserData>(userData)
 
-  const setUser = function (user: UserData): void {
-    storeUserData(user)
-    setActiveUserName(user.username)
+  const setUser = async function (user: UserData): Promise<void> {
+    await cookieManager.storeUserData(user)
+    await cookieManager.setActiveUserName(user.username)
     _setUser(user)
   }
 

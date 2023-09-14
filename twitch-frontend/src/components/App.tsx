@@ -1,11 +1,23 @@
-import React, { type ReactElement } from 'react'
+import React, { useEffect, type ReactElement } from 'react'
 import routeConfig from '../routeConfig'
 import { useUserContext } from '../state/UserContext'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Box, Drawer, Link, List, ListItemButton, ListItemText } from '@mui/material'
+import CookieManager from '../state/Cookies'
 
 function App (): ReactElement {
   // Get context to tell if we have a token
+  useEffect(() => {
+    const cookieInit = async (): Promise<void> => {
+      const cookieManager = CookieManager.getInstance()
+      const uname = cookieManager.getActiveUserName()
+      if (uname !== undefined && uname.length > 0) {
+        await cookieManager.setActiveUserName(uname)
+      }
+    }
+    void cookieInit()
+  }, [])
+
   const { userData } = useUserContext()
   const hasToken = userData.token.value.length > 0
   console.log('Context got user token: ', userData.token)

@@ -1,7 +1,7 @@
 import React, { type ReactElement, useState } from 'react'
 import { HexColorPicker } from 'react-colorful'
 import { ViewerEventSource, ViewerEventType } from '../models/ViewerEvent'
-import { writeNotificationOptions } from '../state/Cookies'
+import CookieManager from '../state/Cookies'
 import Notification, { type CustomizeOptions } from './Notification'
 
 function CustomizeView (): ReactElement {
@@ -44,7 +44,7 @@ function CustomizeView (): ReactElement {
                     {optionsModified ? 'Unsaved changes!' : 'Changes saved!'}
 
                     <button onClick={() => {
-                      writeNotificationOptions(options)
+                      CookieManager.getInstance().writeNotificationOptions(options)
                       setOptionsModified(false)
                     }}>
                     Save Settings

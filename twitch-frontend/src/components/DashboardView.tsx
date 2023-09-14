@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 import { getScopes } from '../api/LocalAPI'
 import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from '../constants'
 import { type SubscriptionOption } from '../models/Twitch'
+import CookieManager from '../state/Cookies'
 import { useUserContext } from '../state/UserContext'
 import SubscriptionSelector from './SubscriptionSelector'
 
@@ -82,8 +83,7 @@ function DashboardView (): ReactElement {
       <button onClick={() => { handleNavigate() }}>Go to Notification View</button>
       <h2>Clear Credentials</h2>
       <p>If needed, you can clear your credentials and select new events to follow, then sign back in using the button below.</p>
-      <button>Clear Credentials</button>
-
+      <button onClick={() => { CookieManager.getInstance().deleteAllCookies() }}>Clear Credentials</button>
     </div>
   )
 }

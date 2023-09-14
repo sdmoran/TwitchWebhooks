@@ -1,4 +1,6 @@
-import { storeUserData, getUserData } from './Cookies'
+import CookieManager from './Cookies'
+
+const cookieManager = CookieManager.getInstance()
 
 test('Test writing and reading users from cookies', async () => {
   const jeff = {
@@ -9,7 +11,7 @@ test('Test writing and reading users from cookies', async () => {
     },
     twitchId: '123jeff567890'
   }
-  storeUserData(jeff)
+  await cookieManager.storeUserData(jeff)
 
   const steff = {
     username: 'steff',
@@ -20,9 +22,9 @@ test('Test writing and reading users from cookies', async () => {
     twitchId: '123steff567890'
   }
 
-  storeUserData(steff)
-  let result = getUserData('jeff')
+  await cookieManager.storeUserData(steff)
+  let result = cookieManager.getUserData('jeff')
   expect(result).toEqual(jeff)
-  result = getUserData('steff')
+  result = cookieManager.getUserData('steff')
   expect(result).toEqual(steff)
 })

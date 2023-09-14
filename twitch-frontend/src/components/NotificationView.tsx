@@ -5,7 +5,7 @@ import { type ViewerEvent, ViewerEventSource, ViewerEventType } from '../models/
 import { TwitchWSClient } from '../api/TwitchWSClient'
 import { EVENT_TYPES_URL_PARAMETER, PREVIEW_URL_PARAMETER } from '../constants'
 import { useUserContext } from '../state/UserContext'
-import { readNotificationOptions } from '../state/Cookies'
+import CookieManager from '../state/Cookies'
 import ErrorMessage from './ErrorMessage'
 
 const WEBSOCKET_URL = 'wss://eventsub.wss.twitch.tv/ws'
@@ -95,7 +95,7 @@ function NotificationView (): ReactElement {
       }
 
       // Read options from cookies
-      const options = readNotificationOptions()
+      const options = CookieManager.getInstance().readNotificationOptions()
       if (options !== undefined) {
         setOptions(options)
       }
