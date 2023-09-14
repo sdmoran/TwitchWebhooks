@@ -1,11 +1,20 @@
-import React, { useEffect, type ReactElement } from 'react'
+import React, { useEffect, useState, type ReactElement } from 'react'
 import routeConfig from '../routeConfig'
 import { useUserContext } from '../state/UserContext'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { Box, Drawer, Link, List, ListItemButton, ListItemText } from '@mui/material'
+import { Button, Drawer, Link, List, ListItemButton, ListItemText, useMediaQuery } from '@mui/material'
+import MenuIcon from '@mui/icons-material/Menu'
+import { useTheme } from '@mui/material/styles'
 import CookieManager from '../state/Cookies'
 
 function App (): ReactElement {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const toggleDrawer = (): void => {
+    setIsDrawerOpen(!isDrawerOpen)
+  }
+
   // Get context to tell if we have a token
   useEffect(() => {
     const cookieInit = async (): Promise<void> => {
@@ -50,30 +59,54 @@ function App (): ReactElement {
     )
   })
 
+  const drawerContent = (
+    <List>
+      {routeList}
+    </List>
+  )
+
+  const renderNav = (): ReactElement => {
+    return (
+      // Don't show modal ever on notification page
+      location.pathname.startsWith('/notifications/')
+        ? <></>
+      // Else if mobile, show button to toggle nav
+        : isMobile
+          ? (
+        <>
+          <Button
+            variant="contained"
+            color="inherit"
+            aria-label="menu"
+            onClick={toggleDrawer}
+          >
+            <MenuIcon />
+          </Button>
+
+          <Drawer
+            anchor="left"
+            open={isDrawerOpen}
+            onClose={toggleDrawer}
+            variant="temporary"
+          >
+            {drawerContent}
+          </Drawer>
+        </>
+            )
+        // Else show regular desktop modal
+          : (
+        <Drawer anchor="left" variant="permanent">
+          {drawerContent}
+        </Drawer>
+            )
+    )
+  }
+
   return (
-        <div className='App'>
-          { !location.pathname.startsWith('/notifications/')
-            ? (
-            <Drawer
-              anchor={'left'}
-              variant='permanent'
-              ModalProps={{
-                keepMounted: true
-              }}
-            >
-              <Box
-                sx={{ width: 250 }}
-                role="presentation"
-              >
-              <List>
-                {routeList}
-              </List>
-              </Box>
-            </Drawer>
-              )
-            : null}
-          <RouterProvider router={router}></RouterProvider>
-        </div>
+    <div className='App'>
+        {renderNav()}
+        <RouterProvider router={router}></RouterProvider>
+    </div>
   )
 }
 
